@@ -854,6 +854,38 @@ export interface ApiPlatformPlatform extends Schema.CollectionType {
   };
 }
 
+export interface ApiProfileProfile extends Schema.CollectionType {
+  collectionName: 'profiles';
+  info: {
+    singularName: 'profile';
+    pluralName: 'profiles';
+    displayName: 'Profile';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    first_name: Attribute.String & Attribute.Required;
+    last_name: Attribute.String;
+    avatar_url: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::profile.profile',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::profile.profile',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -874,6 +906,7 @@ declare module '@strapi/types' {
       'plugin::i18n.locale': PluginI18NLocale;
       'api::badge.badge': ApiBadgeBadge;
       'api::platform.platform': ApiPlatformPlatform;
+      'api::profile.profile': ApiProfileProfile;
     }
   }
 }
