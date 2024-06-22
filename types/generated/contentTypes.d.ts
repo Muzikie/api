@@ -886,6 +886,28 @@ export interface ApiProfileProfile extends Schema.CollectionType {
   };
 }
 
+export interface ApiSongSong extends Schema.CollectionType {
+  collectionName: 'songs';
+  info: {
+    singularName: 'song';
+    pluralName: 'songs';
+    displayName: 'Song';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -907,6 +929,7 @@ declare module '@strapi/types' {
       'api::badge.badge': ApiBadgeBadge;
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
+      'api::song.song': ApiSongSong;
     }
   }
 }
