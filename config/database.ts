@@ -51,7 +51,7 @@ export default ({ env }) => {
       connection: {
         connectionString: env('DATABASE_URL'),
         host: env('PGHOST', 'localhost'),
-        port: env.int('PGPORT', 5432),
+        port: env.int('PGPORT', 56846),
         database: env('PGDATABASE', 'strapi'),
         user: env('PGUSER', 'strapi'),
         password: env('PGPASSWORD', 'strapi'),
