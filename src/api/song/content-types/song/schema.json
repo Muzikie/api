@@ -4,7 +4,8 @@
   "info": {
     "singularName": "song",
     "pluralName": "songs",
-    "displayName": "Song"
+    "displayName": "Song",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -14,6 +15,43 @@
     "name": {
       "type": "string",
       "required": true
+    },
+    "artists": {
+      "type": "string",
+      "required": true,
+      "minLength": 2
+    },
+    "cover_photo_url": {
+      "type": "string",
+      "required": true
+    },
+    "release_year": {
+      "type": "integer",
+      "required": true,
+      "min": 1900,
+      "max": 2050
+    },
+    "Spotify_url": {
+      "type": "string"
+    },
+    "apple_music_url": {
+      "type": "string"
+    },
+    "admin_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "admin::user"
+    },
+    "song_badges": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::song-badge.song-badge",
+      "mappedBy": "song"
+    },
+    "album": {
+      "type": "string",
+      "required": true,
+      "minLength": 2
     }
   }
 }

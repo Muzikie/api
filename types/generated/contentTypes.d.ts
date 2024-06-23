@@ -801,6 +801,11 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     icon: Attribute.Media<'images'>;
+    song_badges: Attribute.Relation<
+      'api::badge.badge',
+      'oneToMany',
+      'api::song-badge.song-badge'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -860,6 +865,7 @@ export interface ApiProfileProfile extends Schema.CollectionType {
     singularName: 'profile';
     pluralName: 'profiles';
     displayName: 'Profile';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -868,6 +874,11 @@ export interface ApiProfileProfile extends Schema.CollectionType {
     first_name: Attribute.String & Attribute.Required;
     last_name: Attribute.String;
     avatar_url: Attribute.String;
+    admin_user: Attribute.Relation<
+      'api::profile.profile',
+      'oneToOne',
+      'admin::user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -892,18 +903,126 @@ export interface ApiSongSong extends Schema.CollectionType {
     singularName: 'song';
     pluralName: 'songs';
     displayName: 'Song';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
+    artists: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 2;
+      }>;
+    cover_photo_url: Attribute.String & Attribute.Required;
+    release_year: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 1900;
+          max: 2050;
+        },
+        number
+      >;
+    Spotify_url: Attribute.String;
+    apple_music_url: Attribute.String;
+    admin_user: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'>;
+    song_badges: Attribute.Relation<
+      'api::song.song',
+      'oneToMany',
+      'api::song-badge.song-badge'
+    >;
+    album: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 2;
+      }>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiSongBadgeSongBadge extends Schema.CollectionType {
+  collectionName: 'song_badges';
+  info: {
+    singularName: 'song-badge';
+    pluralName: 'song-badges';
+    displayName: 'Song Badge';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    nft_id: Attribute.String & Attribute.Required;
+    claimed: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    reward: Attribute.BigInteger &
+      Attribute.Required &
+      Attribute.DefaultTo<'0'>;
+    song: Attribute.Relation<
+      'api::song-badge.song-badge',
+      'manyToOne',
+      'api::song.song'
+    >;
+    badge: Attribute.Relation<
+      'api::song-badge.song-badge',
+      'manyToOne',
+      'api::badge.badge'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::song-badge.song-badge',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::song-badge.song-badge',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiWalletWallet extends Schema.CollectionType {
+  collectionName: 'wallets';
+  info: {
+    singularName: 'wallet';
+    pluralName: 'wallets';
+    displayName: 'Wallet';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    address: Attribute.String & Attribute.Required;
+    balance: Attribute.BigInteger &
+      Attribute.Required &
+      Attribute.DefaultTo<'0'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::wallet.wallet',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::wallet.wallet',
+      'oneToOne',
+      'admin::user'
+    > &
       Attribute.Private;
   };
 }
@@ -930,6 +1049,8 @@ declare module '@strapi/types' {
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
       'api::song.song': ApiSongSong;
+      'api::song-badge.song-badge': ApiSongBadgeSongBadge;
+      'api::wallet.wallet': ApiWalletWallet;
     }
   }
 }

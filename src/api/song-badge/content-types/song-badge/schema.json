@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "song_badges",
+  "info": {
+    "singularName": "song-badge",
+    "pluralName": "song-badges",
+    "displayName": "Song Badge"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nft_id": {
+      "type": "string",
+      "required": true
+    },
+    "claimed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "reward": {
+      "type": "biginteger",
+      "default": "0",
+      "required": true
+    },
+    "song": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::song.song",
+      "inversedBy": "song_badges"
+    },
+    "badge": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::badge.badge",
+      "inversedBy": "song_badges"
+    }
+  }
+}

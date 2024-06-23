@@ -21,6 +21,12 @@
       ],
       "type": "media",
       "multiple": false
+    },
+    "song_badges": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::song-badge.song-badge",
+      "mappedBy": "badge"
     }
   }
 }
