@@ -4,7 +4,8 @@
   "info": {
     "singularName": "wallet",
     "pluralName": "wallets",
-    "displayName": "Wallet"
+    "displayName": "Wallet",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -19,6 +20,16 @@
       "type": "biginteger",
       "default": "0",
       "required": true
+    },
+    "seed": {
+      "type": "string",
+      "required": true
+    },
+    "profile": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::profile.profile",
+      "inversedBy": "wallet"
     }
   }
 }

@@ -37,10 +37,11 @@
     "apple_music_url": {
       "type": "string"
     },
-    "admin_user": {
+    "profile": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "admin::user"
+      "relation": "manyToOne",
+      "target": "api::profile.profile",
+      "inversedBy": "songs"
     },
     "song_badges": {
       "type": "relation",
@@ -52,6 +53,12 @@
       "type": "string",
       "required": true,
       "minLength": 2
+    },
+    "votes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::vote.vote",
+      "mappedBy": "song"
     }
   }
 }

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "badge",
     "pluralName": "badges",
-    "displayName": "Badge"
+    "displayName": "Badge",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -16,17 +17,27 @@
       "required": true
     },
     "icon": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
     },
     "song_badges": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::song-badge.song-badge",
       "mappedBy": "badge"
+    },
+    "schedule": {
+      "type": "enumeration",
+      "enum": [
+        "day",
+        "week",
+        "month",
+        "year"
+      ]
     }
   }
 }
