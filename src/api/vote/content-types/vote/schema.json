@@ -4,7 +4,8 @@
   "info": {
     "singularName": "vote",
     "pluralName": "votes",
-    "displayName": "Vote"
+    "displayName": "Vote",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -22,6 +23,11 @@
       "relation": "manyToOne",
       "target": "api::profile.profile",
       "inversedBy": "votes"
+    },
+    "vote": {
+      "type": "boolean",
+      "default": true,
+      "required": true
     }
   }
 }

@@ -1022,6 +1022,7 @@ export interface ApiVoteVote extends Schema.CollectionType {
     singularName: 'vote';
     pluralName: 'votes';
     displayName: 'Vote';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1033,6 +1034,7 @@ export interface ApiVoteVote extends Schema.CollectionType {
       'manyToOne',
       'api::profile.profile'
     >;
+    vote: Attribute.Boolean & Attribute.Required & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
