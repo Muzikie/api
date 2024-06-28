@@ -19,7 +19,7 @@ interface Song {
 }
 
 module.exports = {
-  async findMostVoted(period: "day" | "week" | "month" | "year" | "second") {
+  async findMostVoted(period: "day" | "week" | "month" | "year" | "minute") {
     let startDate: Date;
     switch (period) {
       case "day":
@@ -34,8 +34,8 @@ module.exports = {
       case "year":
         startDate = moment().startOf("year").toDate();
         break;
-      case "second":
-        startDate = moment().startOf("second").toDate();
+      case "minute":
+        startDate = moment().startOf("minute").toDate();
         break;
       default:
         throw new Error("Invalid period");
