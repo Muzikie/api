@@ -1,35 +1,70 @@
-/**
- * song-badge controller
- */
+import { factories } from '@strapi/strapi';
+import { periods } from '../../../../config/function/cron'
 
-// Create a controller to ensure the user who wants to claim the song badge is
-// the owner of the song.
-// This controller should be able to sign the transaction on user's behalf.
+const periodNames: string[] = periods.map(item => item[0])
 
-// We need another controller to create a new song badge every day/week/month for the winner song.
-// This logic should run using a cron job for each badge type.
-// This controller has to define the winner.
-// It should read the config from the badge stored in DB
-// schedule: 0 0 * * * (every day at midnight) -> Select winner from the songs of the day before
-// schedule: 0 0 * * 1 (every monday at midnight) -> Select winner from the songs of the week before
-// schedule: 0 0 1 * * (every first day of the month at midnight) -> Select winner from the songs of the month
+const getStartDate = (period: string, endDate: Date) => {
+  const startDate = new Date(endDate);
+  if (period === periodNames[3]) {
+    return new Date(startDate.setMonth(startDate.getMonth() - 1));
+  } else if (period === periodNames[2]) {
+    return new Date(startDate.setDate(startDate.getDate() - 7));
+  } else if (period === periodNames[1]) {
+    return new Date(startDate.setDate(startDate.getDate() - 1));
+  }
+  // @todo This defaults to minute, though minute is only a test badge
+  // I should better handle the default state
+  return new Date(startDate.setMinutes(startDate.getMinutes() - 1));
+}
 
-import { factories } from "@strapi/strapi";
+export default factories.createCoreController('api::song-badge.song-badge', ({ strapi }) => ({
+  async create(ctx) {
+    const period = ctx.params.period || periodNames[0];
+    try {
+      const knex = strapi.db.connection;
 
-export default factories.createCoreController(
-  "api::song-badge.song-badge",
-  ({ strapi }) => ({
-    async create(ctx, period) {
-      try {
-        const songBadge = await strapi
-          .service("api::song-badge.song-badge")
-          .createSongBadge(period);
+      const endDate = new Date();
+      const startDate = getStartDate(period, endDate);
 
-        ctx.body = songBadge;
-      } catch (error) {
-        ctx.status = 500;
-        ctx.body = { message: error.message };
+      if (!(startDate instanceof Date)) {
+        ctx.throw(400, 'Invalid period specified');
       }
-    },
-  })
-);
+
+      const vote = await knex('votes')
+        .join('votes_song_links', 'votes.id', '=', 'votes_song_links.vote_id')
+        .select('votes_song_links.song_id', knex.raw('COUNT(*) as vote_count'))
+        .whereBetween('votes.created_at', [startDate, endDate])
+        .groupBy('votes_song_links.song_id')
+        .orderBy('vote_count', 'desc')
+        .first();
+
+      if (!vote) {
+        ctx.throw(400, `No vote was discovered for the time period of ${period}`);
+      }
+
+      const badge = await strapi.db.query('api::badge.badge').findOne({
+        where: { schedule: period },
+      });
+
+      if (!badge) {
+        ctx.throw(400, `No badge was found for the time period of ${period}`);
+      }
+
+      const songBadge = await strapi.db.query('api::song-badge.song-badge').create({
+        data: {
+          song: vote.song_id,
+          badge: badge.id,
+        },
+      });
+
+      return {
+        id: songBadge.id,
+        message: `Badge assigned for the period: ${period}`
+      };
+    } catch (error) {
+      // @todo Persist logs to file
+      console.error(`Failed to assign badge for the period ${period}:`, error);
+      ctx.throw(500, `An error occurred while assigning badge for the period ${period}`);
+    }
+  }
+}));
