@@ -33,6 +33,7 @@
     "schedule": {
       "type": "enumeration",
       "enum": [
+        "minute",
         "day",
         "week",
         "month",

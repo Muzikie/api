@@ -807,7 +807,7 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
       'oneToMany',
       'api::song-badge.song-badge'
     >;
-    schedule: Attribute.Enumeration<['day', 'week', 'month', 'year']>;
+    schedule: Attribute.Enumeration<['minute', 'day', 'week', 'month', 'year']>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
