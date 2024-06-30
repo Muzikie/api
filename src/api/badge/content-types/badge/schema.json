@@ -20,9 +20,7 @@
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": [
-        "images"
-      ]
+      "allowedTypes": ["images"]
     },
     "song_badges": {
       "type": "relation",
@@ -32,13 +30,7 @@
     },
     "schedule": {
       "type": "enumeration",
-      "enum": [
-        "minute",
-        "day",
-        "week",
-        "month",
-        "year"
-      ]
+      "enum": ["minute", "day", "week", "month", "year"]
     }
   }
 }
