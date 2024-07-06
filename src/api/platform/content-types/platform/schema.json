@@ -17,9 +17,7 @@
       "minLength": 3
     },
     "icon": {
-      "allowedTypes": [
-        "images"
-      ],
+      "allowedTypes": ["images"],
       "type": "media",
       "multiple": false,
       "required": true

@@ -1,6 +1,4 @@
-/**
- * song-badge service
- */
+// src/api/song-badge/services/song-badge.ts
 
 import { factories } from '@strapi/strapi';
 
