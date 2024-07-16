@@ -808,6 +808,15 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
       'api::song-badge.song-badge'
     >;
     schedule: Attribute.Enumeration<['minute', 'day', 'week', 'month', 'year']>;
+    points: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
