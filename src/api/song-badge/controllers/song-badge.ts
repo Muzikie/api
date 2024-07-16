@@ -29,7 +29,7 @@ export default factories.createCoreController(
         const startDate = getStartDate(period, endDate);
 
         if (!(startDate instanceof Date)) {
-          ctx.throw(400, 'Invalid period specified');
+          return ctx.badRequest('Invalid period specified');
         }
 
         const vote = await knex('votes')
@@ -44,10 +44,7 @@ export default factories.createCoreController(
           .first();
 
         if (!vote) {
-          ctx.throw(
-            400,
-            `No vote was discovered for the time period of ${period}`,
-          );
+          return ctx.badRequest(`No vote was discovered for the time period of ${period}`);
         }
 
         const badge = await strapi.db.query('api::badge.badge').findOne({
@@ -55,7 +52,7 @@ export default factories.createCoreController(
         });
 
         if (!badge) {
-          ctx.throw(400, `No badge was found for the time period of ${period}`);
+          return ctx.badRequest(`No badge was found for the time period of ${period}`);
         }
 
         const songBadge = await strapi.db
@@ -73,14 +70,11 @@ export default factories.createCoreController(
         };
       } catch (error) {
         // @todo Persist logs to file
-        console.error(
+        console.log(
           `Failed to assign badge for the period ${period}:`,
           error,
         );
-        ctx.throw(
-          500,
-          `An error occurred while assigning badge for the period ${period}`,
-        );
+        return ctx.badRequest(`An error occurred while assigning badge for the period ${period}`);
       }
     },
   }),
