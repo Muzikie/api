@@ -10,10 +10,9 @@ export default [
   'strapi::favicon',
   'strapi::public',
   {
-    resolve: "./src/middlewares/custom/signup",
+    resolve: './src/middlewares/custom/signup',
     config: {
       enabled: true,
-      conf: {},
     },
   },
 ];
