@@ -23,10 +23,10 @@
       "type": "string",
       "required": false
     },
-    "admin_user": {
+    "users_permissions_user": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "admin::user"
+      "target": "plugin::users-permissions.user"
     },
     "votes": {
       "type": "relation",

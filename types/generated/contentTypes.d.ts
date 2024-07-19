@@ -885,10 +885,10 @@ export interface ApiProfileProfile extends Schema.CollectionType {
     first_name: Attribute.String & Attribute.Required;
     last_name: Attribute.String;
     avatar_url: Attribute.String;
-    admin_user: Attribute.Relation<
+    users_permissions_user: Attribute.Relation<
       'api::profile.profile',
       'oneToOne',
-      'admin::user'
+      'plugin::users-permissions.user'
     >;
     votes: Attribute.Relation<
       'api::profile.profile',
