@@ -724,6 +724,16 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    song_badges: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::song-badge.song-badge'
+    >;
+    songs: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::song.song'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -895,16 +905,20 @@ export interface ApiProfileProfile extends Schema.CollectionType {
       'oneToMany',
       'api::vote.vote'
     >;
-    songs: Attribute.Relation<
-      'api::profile.profile',
-      'oneToMany',
-      'api::song.song'
-    >;
     wallet: Attribute.Relation<
       'api::profile.profile',
       'oneToOne',
       'api::wallet.wallet'
     >;
+    points: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -953,10 +967,10 @@ export interface ApiSongSong extends Schema.CollectionType {
       >;
     Spotify_url: Attribute.String;
     apple_music_url: Attribute.String;
-    profile: Attribute.Relation<
+    users_permissions_user: Attribute.Relation<
       'api::song.song',
       'manyToOne',
-      'api::profile.profile'
+      'plugin::users-permissions.user'
     >;
     song_badges: Attribute.Relation<
       'api::song.song',
@@ -985,6 +999,7 @@ export interface ApiSongBadgeSongBadge extends Schema.CollectionType {
     singularName: 'song-badge';
     pluralName: 'song-badges';
     displayName: 'Song Badge';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1007,6 +1022,20 @@ export interface ApiSongBadgeSongBadge extends Schema.CollectionType {
       'manyToOne',
       'api::badge.badge'
     >;
+    users_permissions_user: Attribute.Relation<
+      'api::song-badge.song-badge',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    rank: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 1;
+          max: 3;
+        },
+        number
+      >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

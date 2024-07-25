@@ -34,17 +34,17 @@
       "target": "api::vote.vote",
       "mappedBy": "profile"
     },
-    "songs": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::song.song",
-      "mappedBy": "profile"
-    },
     "wallet": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::wallet.wallet",
       "mappedBy": "profile"
+    },
+    "points": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 0
     }
   }
 }

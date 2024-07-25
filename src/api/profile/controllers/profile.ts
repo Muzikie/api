@@ -12,7 +12,7 @@ export default factories.createCoreController('api::profile.profile', ({ strapi 
     }
 
     const knex = strapi.db.connection;
-    const link = await knex('profiles_admin_user_links')
+    const link = await knex('profiles_users_permissions_user_links')
         .where('user_id', user.id)
         .first();
 

@@ -37,10 +37,10 @@
     "apple_music_url": {
       "type": "string"
     },
-    "profile": {
+    "users_permissions_user": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::profile.profile",
+      "target": "plugin::users-permissions.user",
       "inversedBy": "songs"
     },
     "song_badges": {

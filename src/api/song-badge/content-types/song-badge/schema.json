@@ -4,7 +4,8 @@
   "info": {
     "singularName": "song-badge",
     "pluralName": "song-badges",
-    "displayName": "Song Badge"
+    "displayName": "Song Badge",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -36,6 +37,18 @@
       "relation": "manyToOne",
       "target": "api::badge.badge",
       "inversedBy": "song_badges"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "song_badges"
+    },
+    "rank": {
+      "type": "integer",
+      "required": true,
+      "max": 3,
+      "min": 1
     }
   }
 }
