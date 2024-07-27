@@ -734,6 +734,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::song.song'
     >;
+    votes: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::vote.vote'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -900,11 +905,6 @@ export interface ApiProfileProfile extends Schema.CollectionType {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    votes: Attribute.Relation<
-      'api::profile.profile',
-      'oneToMany',
-      'api::vote.vote'
-    >;
     wallet: Attribute.Relation<
       'api::profile.profile',
       'oneToOne',
@@ -1067,10 +1067,10 @@ export interface ApiVoteVote extends Schema.CollectionType {
   };
   attributes: {
     song: Attribute.Relation<'api::vote.vote', 'manyToOne', 'api::song.song'>;
-    profile: Attribute.Relation<
+    users_permissions_user: Attribute.Relation<
       'api::vote.vote',
       'manyToOne',
-      'api::profile.profile'
+      'plugin::users-permissions.user'
     >;
     vote: Attribute.Boolean & Attribute.Required & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;

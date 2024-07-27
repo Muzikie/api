@@ -18,10 +18,10 @@
       "target": "api::song.song",
       "inversedBy": "votes"
     },
-    "profile": {
+    "users_permissions_user": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::profile.profile",
+      "target": "plugin::users-permissions.user",
       "inversedBy": "votes"
     },
     "vote": {
@@ -31,3 +31,5 @@
     }
   }
 }
+
+
