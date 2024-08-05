@@ -2,9 +2,6 @@
 
 export default (config, { strapi }) => {
   return async (ctx, next) => {
-    // Log that the signup middleware is called
-    strapi.log.info('Signup middleware is called');
-
     if (
       ctx.request.url === '/api/auth/local/register' &&
       ctx.request.method.toLowerCase() === 'post'
