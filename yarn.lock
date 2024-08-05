@@ -2896,6 +2896,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@strapi/helper-plugin@npm:4.25.6":
+  version: 4.25.6
+  resolution: "@strapi/helper-plugin@npm:4.25.6"
+  dependencies:
+    axios: 1.6.0
+    date-fns: 2.30.0
+    formik: 2.4.0
+    immer: 9.0.19
+    lodash: 4.17.21
+    qs: 6.11.1
+    react-helmet: 6.1.0
+    react-intl: 6.4.1
+    react-query: 3.39.3
+    react-select: 5.7.0
+  peerDependencies:
+    "@strapi/design-system": 1.19.0
+    "@strapi/icons": 1.19.0
+    react: ^17.0.0 || ^18.0.0
+    react-dom: ^17.0.0 || ^18.0.0
+    react-router-dom: ^5.2.0
+    styled-components: ^5.2.1
+  checksum: 317145a43a879a2c374c4b0b580d12975e05abd0c4f19cbcc817e8dcc3896a9d9c897e67e423dfc4708b9b6df71baa86d6113e0bcf1e0a1849637f73674e9b71
+  languageName: node
+  linkType: hard
+
 "@strapi/icons@npm:1.19.0":
   version: 1.19.0
   resolution: "@strapi/icons@npm:1.19.0"
@@ -3118,14 +3143,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/plugin-users-permissions@npm:4.25.1":
-  version: 4.25.1
-  resolution: "@strapi/plugin-users-permissions@npm:4.25.1"
+"@strapi/plugin-users-permissions@npm:^4.25.6":
+  version: 4.25.6
+  resolution: "@strapi/plugin-users-permissions@npm:4.25.6"
   dependencies:
     "@strapi/design-system": 1.19.0
-    "@strapi/helper-plugin": 4.25.1
+    "@strapi/helper-plugin": 4.25.6
     "@strapi/icons": 1.19.0
-    "@strapi/utils": 4.25.1
+    "@strapi/utils": 4.25.6
     bcryptjs: 2.4.3
     formik: 2.4.0
     grant-koa: 5.4.8
@@ -3148,7 +3173,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-router-dom: ^5.2.0
     styled-components: ^5.2.1
-  checksum: 07234e25df9347a078e2ed22eb2c6d03b765e4e61207e09bf7d3a80941d1117b6b8d2ebafaeda607e3f67769c07e6b9c73e25879265343544f072d41f7db630e
+  checksum: 8375512cf65508ee6ed14b63baa947272a6778cacc65a5ccc8de4347fc96ace7b05bca056789a6e04457464d9f1dfda1032ed88067f227ab599fccb699b3e4ea
   languageName: node
   linkType: hard
 
@@ -3333,6 +3358,20 @@ __metadata:
     p-map: 4.0.0
     yup: 0.32.9
   checksum: 46bc3185f52f9ec50631889fff93357ca38e7bb0bfb6b6afc40f4dcfb419abbeb76cf2a89f29391a22d9c575e6e299f1c96b8c88745061c8750eabf492d1f72e
+  languageName: node
+  linkType: hard
+
+"@strapi/utils@npm:4.25.6":
+  version: 4.25.6
+  resolution: "@strapi/utils@npm:4.25.6"
+  dependencies:
+    "@sindresorhus/slugify": 1.1.0
+    date-fns: 2.30.0
+    http-errors: 1.8.1
+    lodash: 4.17.21
+    p-map: 4.0.0
+    yup: 0.32.9
+  checksum: cfa437e89d70a276673e298b6b347b9afec094612272cf81e9efdfa74cac79eb86c738c94a5c28193af42003cf9108913878fcfdf0f6978e00680e69fdbb5ae5
   languageName: node
   linkType: hard
 
@@ -10755,7 +10794,7 @@ __metadata:
     "@eslint/js": ^9.6.0
     "@strapi/plugin-cloud": 4.25.1
     "@strapi/plugin-i18n": 4.25.1
-    "@strapi/plugin-users-permissions": 4.25.1
+    "@strapi/plugin-users-permissions": ^4.25.6
     "@strapi/strapi": 4.25.1
     "@typescript-eslint/eslint-plugin": ^7.14.1
     "@typescript-eslint/parser": ^7.14.1
