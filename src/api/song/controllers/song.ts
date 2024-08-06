@@ -3,6 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi';
+import musicService from '../services/music';
 
 export default factories.createCoreController('api::song.song', ({ strapi }) => ({
   async find(ctx) {
@@ -29,5 +30,21 @@ export default factories.createCoreController('api::song.song', ({ strapi }) => 
     }));
 
     return { data: modifiedData, meta };
+  },
+
+  async fetchFromPlatform(ctx) {
+    const { platform, id } = ctx.params;
+
+    console.log(`Fetching from platform: ${platform}, ID: ${id}`);
+
+    try {
+      const data = await musicService.fetchFromPlatform(platform, id);
+      console.log('Data fetched successfully:', data);
+      ctx.send(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      ctx.status = 500;
+      ctx.send({ error: 'Failed to fetch data from the music platform' });
+    }
   },
 }));
