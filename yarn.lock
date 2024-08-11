@@ -2896,9 +2896,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/helper-plugin@npm:4.25.6":
-  version: 4.25.6
-  resolution: "@strapi/helper-plugin@npm:4.25.6"
+"@strapi/helper-plugin@npm:4.25.7":
+  version: 4.25.7
+  resolution: "@strapi/helper-plugin@npm:4.25.7"
   dependencies:
     axios: 1.6.0
     date-fns: 2.30.0
@@ -2917,7 +2917,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-router-dom: ^5.2.0
     styled-components: ^5.2.1
-  checksum: 317145a43a879a2c374c4b0b580d12975e05abd0c4f19cbcc817e8dcc3896a9d9c897e67e423dfc4708b9b6df71baa86d6113e0bcf1e0a1849637f73674e9b71
+  checksum: 385ebfa90f9a4736e544f158997bf8ce61bd0a15b0a3eadc35aa679d5a763975d693ae5492abf3b4bc14077415c291378bb0730d4e54be3d8e56d4b1c39ea3af
   languageName: node
   linkType: hard
 
@@ -3144,13 +3144,13 @@ __metadata:
   linkType: hard
 
 "@strapi/plugin-users-permissions@npm:^4.25.6":
-  version: 4.25.6
-  resolution: "@strapi/plugin-users-permissions@npm:4.25.6"
+  version: 4.25.7
+  resolution: "@strapi/plugin-users-permissions@npm:4.25.7"
   dependencies:
     "@strapi/design-system": 1.19.0
-    "@strapi/helper-plugin": 4.25.6
+    "@strapi/helper-plugin": 4.25.7
     "@strapi/icons": 1.19.0
-    "@strapi/utils": 4.25.6
+    "@strapi/utils": 4.25.7
     bcryptjs: 2.4.3
     formik: 2.4.0
     grant-koa: 5.4.8
@@ -3173,7 +3173,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-router-dom: ^5.2.0
     styled-components: ^5.2.1
-  checksum: 8375512cf65508ee6ed14b63baa947272a6778cacc65a5ccc8de4347fc96ace7b05bca056789a6e04457464d9f1dfda1032ed88067f227ab599fccb699b3e4ea
+  checksum: 5ff01afb727e5de6fc0109ccbf917b1fc56f04e761c65e1342241e24dc5aa30dc96b1680e798b1c41813e548d0ebd25f4ae714d308a71b4b240855b67ff2d7be
   languageName: node
   linkType: hard
 
@@ -3361,9 +3361,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/utils@npm:4.25.6":
-  version: 4.25.6
-  resolution: "@strapi/utils@npm:4.25.6"
+"@strapi/utils@npm:4.25.7":
+  version: 4.25.7
+  resolution: "@strapi/utils@npm:4.25.7"
   dependencies:
     "@sindresorhus/slugify": 1.1.0
     date-fns: 2.30.0
@@ -3371,7 +3371,7 @@ __metadata:
     lodash: 4.17.21
     p-map: 4.0.0
     yup: 0.32.9
-  checksum: cfa437e89d70a276673e298b6b347b9afec094612272cf81e9efdfa74cac79eb86c738c94a5c28193af42003cf9108913878fcfdf0f6978e00680e69fdbb5ae5
+  checksum: adfe826fe17599f072d92a34b9ddc65cd99da05399888366ba9ded2b2763e1705857e130c3d8812b1f8f7e73326f8f540ea4e2b64cb6c2446b7adbc29dcfce44
   languageName: node
   linkType: hard
 
@@ -6539,8 +6539,8 @@ __metadata:
   linkType: hard
 
 "elliptic@npm:^6.5.4":
-  version: 6.5.5
-  resolution: "elliptic@npm:6.5.5"
+  version: 6.5.6
+  resolution: "elliptic@npm:6.5.6"
   dependencies:
     bn.js: ^4.11.9
     brorand: ^1.1.0
@@ -6549,7 +6549,7 @@ __metadata:
     inherits: ^2.0.4
     minimalistic-assert: ^1.0.1
     minimalistic-crypto-utils: ^1.0.1
-  checksum: ec9105e4469eb3b32b0ee2579756c888ddf3f99d259aa0d65fccb906ee877768aaf8880caae73e3e669c9a4adeb3eb1945703aa974ec5000d2d33a239f4567eb
+  checksum: 213d778ccfe99ec8f0f871b1cc96a10ac3763d9175215d0a9dc026f291e5f50fea6f635e4e47b4506f9ada25aeb703bd807d8737b880dbb24d092a3001c6d97d
   languageName: node
   linkType: hard
 
@@ -12253,7 +12253,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.10.3, qs@npm:^6.11.2, qs@npm:^6.4.0, qs@npm:^6.5.2, qs@npm:^6.9.6":
+"qs@npm:^6.10.3, qs@npm:^6.11.2, qs@npm:^6.9.6":
+  version: 6.13.0
+  resolution: "qs@npm:6.13.0"
+  dependencies:
+    side-channel: ^1.0.6
+  checksum: e9404dc0fc2849245107108ce9ec2766cde3be1b271de0bf1021d049dc5b98d1a2901e67b431ac5509f865420a7ed80b7acb3980099fe1c118a1c5d2e1432ad8
+  languageName: node
+  linkType: hard
+
+"qs@npm:^6.4.0, qs@npm:^6.5.2":
   version: 6.12.1
   resolution: "qs@npm:6.12.1"
   dependencies:

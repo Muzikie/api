@@ -9,7 +9,6 @@ export default [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
-  'plugin::users-permissions.permissions',
   {
     resolve: './src/middlewares/custom/signup',
     config: {
