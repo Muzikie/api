@@ -23,13 +23,6 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "votes"
-    },
-    "vote": {
-      "type": "boolean",
-      "default": true,
-      "required": true
     }
   }
 }
-
-

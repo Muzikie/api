@@ -78,11 +78,11 @@
       "target": "api::song.song",
       "mappedBy": "users_permissions_user"
     },
-	"votes": {
-		"type": "relation",
-		"relation": "oneToMany",
-		"target": "api::vote.vote",
-		"mappedBy": "users_permissions_user"
-	  }
+    "votes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::vote.vote",
+      "mappedBy": "users_permissions_user"
+    }
   }
 }
