@@ -1072,7 +1072,6 @@ export interface ApiVoteVote extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    vote: Attribute.Boolean & Attribute.Required & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
