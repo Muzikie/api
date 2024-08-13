@@ -15,7 +15,21 @@ export default factories.createCoreController('api::vote.vote', ({ strapi }) => 
       return ctx.badRequest('User ID or Song ID is missing');
     }
 
-    // Check if a vote already exists for the user and song
+ // Hardcoded limit: 2 votes per day
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const voteCountToday = await strapi.db.query('api::vote.vote').count({
+      where: {
+        users_permissions_user: userId,
+        createdAt: { $gte: todayStart.toISOString() },
+      },
+    });
+
+    if (voteCountToday >= 2) {
+      return ctx.badRequest('You have already voted 2 times today.');
+    }
+      // Check if a vote already exists for the user and song
     const existingVote = await strapi.db.query('api::vote.vote').findOne({
       where: {
         users_permissions_user: userId,
