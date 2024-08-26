@@ -971,6 +971,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'contribution-tier.contribution-tier',
       true
     >;
+    users_permissions_user: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
