@@ -55,6 +55,9 @@ jobs:
             node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
 
+      - name: Install Yarn
+        run: corepack enable
+
       - name: Set Yarn version
         run: yarn set version 3.2.3
 
