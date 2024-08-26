@@ -937,6 +937,58 @@ export interface ApiProfileProfile extends Schema.CollectionType {
   };
 }
 
+export interface ApiProjectProject extends Schema.CollectionType {
+  collectionName: 'projects';
+  info: {
+    singularName: 'project';
+    pluralName: 'projects';
+    displayName: 'Project';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 3;
+      }>;
+    description: Attribute.Text &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 100;
+      }>;
+    project_type: Attribute.Enumeration<
+      ['single', 'EP', 'Album', 'Music video']
+    > &
+      Attribute.Required;
+    planned_release_date: Attribute.Date;
+    financial_goal: Attribute.Integer;
+    current_funding: Attribute.Integer;
+    deadline: Attribute.Date;
+    contribution_tiers: Attribute.Component<
+      'contribution-tier.contribution-tier',
+      true
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiSongSong extends Schema.CollectionType {
   collectionName: 'songs';
   info: {
@@ -1143,6 +1195,7 @@ declare module '@strapi/types' {
       'api::badge.badge': ApiBadgeBadge;
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
+      'api::project.project': ApiProjectProject;
       'api::song.song': ApiSongSong;
       'api::song-badge.song-badge': ApiSongBadgeSongBadge;
       'api::vote.vote': ApiVoteVote;
