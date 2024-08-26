@@ -4,6 +4,7 @@
 
 import { factories } from '@strapi/strapi';
 import musicService from '../services/music';
+import { WEEKLY_SONG_CREATE_LIMIT } from '../../../constants/limits';
 
 export default factories.createCoreController('api::song.song', ({ strapi }) => ({
   async find(ctx) {
@@ -67,8 +68,8 @@ export default factories.createCoreController('api::song.song', ({ strapi }) => 
       },
     });
 
-    // Check if the user has exceeded the limit of 1 songs per week
-    if (songCountThisWeek >= 1) {
+    // Check if the user has exceeded songs per week limit
+    if (songCountThisWeek >= WEEKLY_SONG_CREATE_LIMIT) {
       return ctx.badRequest('You have already posted a song this week.');
     }
 

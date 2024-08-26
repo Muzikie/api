@@ -1,6 +1,7 @@
 // src/api/vote/controllers/vote.ts
 
 import { factories } from '@strapi/strapi';
+import { DAILY_VOTE_LIMIT } from '../../../constants/limits';
 
 export default factories.createCoreController('api::vote.vote', ({ strapi }) => ({
   async create(ctx) {
@@ -26,8 +27,8 @@ export default factories.createCoreController('api::vote.vote', ({ strapi }) => 
       },
     });
 
-    if (voteCountToday >= 2) {
-      return ctx.badRequest('You have already voted 2 times today.');
+    if (voteCountToday >= DAILY_VOTE_LIMIT) {
+      return ctx.badRequest(`You have already voted ${DAILY_VOTE_LIMIT} times today.`);
     }
       // Check if a vote already exists for the user and song
     const existingVote = await strapi.db.query('api::vote.vote').findOne({
