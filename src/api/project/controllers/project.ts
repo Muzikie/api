@@ -9,6 +9,7 @@ import {
   MEX_PROJECT_IMAGE_SIZE,
   MEX_PROJECT_VIDEO_SIZE,
 } from '../../../constants/limits';
+import { convertByteToBit } from '../../../utils/file';
 
 export default factories.createCoreController('api::project.project', ({ strapi }) => ({
   async update(ctx) {
@@ -43,8 +44,8 @@ export default factories.createCoreController('api::project.project', ({ strapi 
 
         // Check the size of each photo
         for (const photo of newImages) {
-          if (photo.size > MEX_PROJECT_IMAGE_SIZE) {
-            return ctx.badRequest(`Each image must be smaller than 2 MB. The image "${photo.name}" is too large.`);
+          if (photo.size > convertByteToBit(MEX_PROJECT_IMAGE_SIZE)) {
+            return ctx.badRequest(`Each image must be smaller than ${MEX_PROJECT_IMAGE_SIZE} MB. The image "${photo.name}" is too large.`);
           }
         }
 
@@ -58,8 +59,8 @@ export default factories.createCoreController('api::project.project', ({ strapi 
 
       // Handle video
       if (files.video) {
-        if (files.video.size > MEX_PROJECT_VIDEO_SIZE) {
-          return ctx.badRequest(`The video must be smaller than 10 MB.`);
+        if (files.video.size > convertByteToBit(MEX_PROJECT_VIDEO_SIZE)) {
+          return ctx.badRequest(`The video must be smaller than ${MEX_PROJECT_VIDEO_SIZE} MB.`);
         }
 
         const video = await strapi.plugins['upload'].services.upload.upload({
