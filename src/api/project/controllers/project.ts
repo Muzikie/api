@@ -4,7 +4,11 @@
 
 import { factories } from '@strapi/strapi'
 import { parseMultipartData } from '@strapi/utils';
-import { TOTAL_PROJECT_IMAGES, MEX_PROJECT_IMAGE_SIZE } from '../../../constants/limits';
+import {
+  TOTAL_PROJECT_IMAGES,
+  MEX_PROJECT_IMAGE_SIZE,
+  MEX_PROJECT_VIDEO_SIZE,
+} from '../../../constants/limits';
 
 export default factories.createCoreController('api::project.project', ({ strapi }) => ({
   async update(ctx) {
@@ -34,7 +38,7 @@ export default factories.createCoreController('api::project.project', ({ strapi 
 
         // Check if the total number of photos exceeds the limit
         if (totalImages > TOTAL_PROJECT_IMAGES) {
-          return ctx.badRequest(`You can only have a maximum of 5 images per project.`);
+          return ctx.badRequest(`You can only have a maximum of ${TOTAL_PROJECT_IMAGES} images per project.`);
         }
 
         // Check the size of each photo
@@ -54,8 +58,8 @@ export default factories.createCoreController('api::project.project', ({ strapi 
 
       // Handle video
       if (files.video) {
-        if (files.video.size > MEX_PROJECT_IMAGE_SIZE) {
-          return ctx.badRequest(`The video must be smaller than 2 MB.`);
+        if (files.video.size > MEX_PROJECT_VIDEO_SIZE) {
+          return ctx.badRequest(`The video must be smaller than 10 MB.`);
         }
 
         const video = await strapi.plugins['upload'].services.upload.upload({
