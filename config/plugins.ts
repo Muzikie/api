@@ -4,4 +4,16 @@ module.exports = ({ env }) => ({
       jwtSecret: env('ADMIN_JWT_SECRET'),
     },
   },
+  upload: {
+    config: {
+      provider: 'local', // Default provider (can be 'local' or another like 'aws-s3', 'cloudinary', etc.)
+      providerOptions: {
+        sizeLimit: 10 * 1024 * 1024,
+      },
+      actionOptions: {
+        upload: {},
+        delete: {},
+      },
+    },
+  },
 });
