@@ -19,7 +19,9 @@ export default factories.createCoreController('api::project.project', ({ strapi 
     // Fetch the project
     const project = await strapi.entityService.findOne('api::project.project', id, {
       populate: {
-        images: true
+        images: true,
+        video: true,
+        audio: true,
       }
     });
 
@@ -67,11 +69,25 @@ export default factories.createCoreController('api::project.project', ({ strapi 
         }
 
         const video = await strapi.plugins['upload'].services.upload.upload({
-          data: { ...data, refId: id, ref: 'project', field: 'video' },
+          data: { ...data, refId: id, ref: 'api::project.project', field: 'video' },
           files: files.video,
         });
 
         data.video = video[0].id;
+      }
+
+      // Handle audio
+      if (files.audio) {
+        if (files.audio.size > convertByteToBit(MEX_PROJECT_VIDEO_SIZE)) {
+          return ctx.badRequest(`The audio must be smaller than ${MEX_PROJECT_VIDEO_SIZE} MB.`);
+        }
+
+        const audio = await strapi.plugins['upload'].services.upload.upload({
+          data: { ...data, refId: id, ref: 'api::project.project', field: 'audio' },
+          files: files.audio,
+        });
+
+        data.audio = audio[0].id;
       }
 
       entity = await strapi.entityService.update("api::project.project", id, { data });
