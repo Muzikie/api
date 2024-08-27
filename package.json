@@ -10,7 +10,7 @@
     "strapi": "strapi",
     "deploy": "strapi deploy",
     "format": "prettier --write \"src/**/*.{js,ts,tsx,json,css,scss,md}\"",
-    "lint": "npx eslint ./src/api ./src/extensions ./config -c ./eslint.config.mjs"
+    "lint": "eslint"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "4.25.1",
