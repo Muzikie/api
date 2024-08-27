@@ -1,19 +1,36 @@
-import globals from 'globals';
-import pluginJs from '@eslint/js';
-import tsESlint from 'typescript-eslint';
+import eslint from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import typescriptParser from "@typescript-eslint/parser";
 
-
-export default [
+const config = [
   {
-    files: [
-      'src/api/**/*.{js,mjs,cjs,ts}',
-      'src/extensions/**/*.{js,mjs,cjs,ts}',
-      'config/**/*.{js,mjs,cjs,ts}',
+    files: ["./src/**/*.ts", "./config/**/*.ts"],
+    ignores: [
+      "node_modules",
+      "public",
+      "src/admin/**",
+      "dist/**",
+      ".strapi/**",
+      ".husky/**",
+      ".github/**",
+      ".yarn/**",
     ],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        project: "./tsconfig.json",
+        sourceType: "module",
+      },
+    },
+    rules: {
+      ...eslint.configs.recommended.rules,
+      ...tseslint.configs["eslint-recommended"].rules,
+      ...tseslint.configs.recommended.rules,
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
   },
-  {
-    languageOptions: { globals: globals.node }
-  },
-  pluginJs.configs.recommended,
-  ...tsESlint.configs.recommended,
 ];
+
+export default config;
