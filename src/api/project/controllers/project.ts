@@ -17,10 +17,14 @@ export default factories.createCoreController('api::project.project', ({ strapi 
     const user = ctx.state.user;
 
     // Fetch the project
-    const project = await strapi.services.project.findOne({ id });
+    const project = await strapi.entityService.findOne('api::project.project', id, {
+      populate: {
+        images: true
+      }
+    });
 
     // Ensure ownership
-    if (!project || project.user_id !== user.id) {
+    if (!project || project.id !== user.id) {
       return ctx.unauthorized('Only the owner is allowed to update a project');
     }
 
@@ -30,7 +34,6 @@ export default factories.createCoreController('api::project.project', ({ strapi 
     let entity;
     if (ctx.is('multipart')) {
       const { data, files } = parseMultipartData(ctx);
-
       // Handle images
       if (files.images) {
         const newImages = Array.isArray(files.images) ? files.images : [files.images];
@@ -43,18 +46,18 @@ export default factories.createCoreController('api::project.project', ({ strapi 
         }
 
         // Check the size of each photo
-        for (const photo of newImages) {
-          if (photo.size > convertByteToBit(MEX_PROJECT_IMAGE_SIZE)) {
-            return ctx.badRequest(`Each image must be smaller than ${MEX_PROJECT_IMAGE_SIZE} MB. The image "${photo.name}" is too large.`);
+        for (const image of newImages) {
+          if (image.size > convertByteToBit(MEX_PROJECT_IMAGE_SIZE)) {
+            return ctx.badRequest(`Each image must be smaller than ${MEX_PROJECT_IMAGE_SIZE} MB. The image "${image.name}" is too large.`);
           }
         }
 
         const uploadedPhotos = await strapi.plugins['upload'].services.upload.upload({
-          data: { ...data, refId: id, ref: 'project', field: 'photos' },
+          data: { ...data, refId: id, ref: 'api::project.project', field: 'images' },
           files: newImages,
         });
 
-        data.photos = project.photos.concat(uploadedPhotos.map(file => file.id));
+        data.photos = project.images.concat(uploadedPhotos.map(file => file.id));
       }
 
       // Handle video
@@ -71,9 +74,9 @@ export default factories.createCoreController('api::project.project', ({ strapi 
         data.video = video[0].id;
       }
 
-      entity = await strapi.services.project.update({ id }, data);
+      entity = await strapi.entityService.update("api::project.project", id, { data });
     } else {
-      entity = await strapi.services.project.update({ id }, ctx.request.body);
+      entity = await strapi.entityService.update("api::project.project", id, ctx.request.body);
     }
 
     const sanitizedResults = await this.sanitizeOutput(entity, ctx);
