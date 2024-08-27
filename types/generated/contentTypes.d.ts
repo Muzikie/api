@@ -976,6 +976,9 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    images: Attribute.Media<'images', true>;
+    video: Attribute.Media<'videos'>;
+    audio: Attribute.Media<'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
