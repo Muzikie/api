@@ -35,7 +35,7 @@
     "planned_release_date": {
       "type": "date"
     },
-    "financial_goal": {
+    "soft_goal": {
       "type": "integer"
     },
     "current_funding": {
@@ -44,36 +44,45 @@
     "deadline": {
       "type": "date"
     },
-    "contribution_tiers": {
-      "type": "component",
-      "repeatable": true,
-      "component": "contribution-tier.contribution-tier"
-    },
     "users_permissions_user": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
     },
     "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
     },
     "video": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "videos"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
     },
     "audio": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "audios"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
+    },
+    "hard_goal": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "contribution_tiers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::contribution-tier.contribution-tier",
+      "mappedBy": "project"
     }
   }
 }
