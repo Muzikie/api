@@ -1019,7 +1019,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
     > &
       Attribute.Required;
     planned_release_date: Attribute.Date;
-    financial_goal: Attribute.Integer;
+    soft_goal: Attribute.Integer;
     current_funding: Attribute.Integer;
     deadline: Attribute.Date;
     users_permissions_user: Attribute.Relation<
@@ -1035,6 +1035,14 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::contribution-tier.contribution-tier'
     >;
+    hard_goal: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

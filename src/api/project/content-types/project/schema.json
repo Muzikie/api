@@ -35,7 +35,7 @@
     "planned_release_date": {
       "type": "date"
     },
-    "financial_goal": {
+    "soft_goal": {
       "type": "integer"
     },
     "current_funding": {
@@ -77,6 +77,11 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::contribution-tier.contribution-tier"
+    },
+    "hard_goal": {
+      "type": "integer",
+      "required": true,
+      "min": 0
     }
   }
 }
