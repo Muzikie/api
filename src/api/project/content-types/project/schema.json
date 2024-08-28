@@ -73,15 +73,16 @@
         "audios"
       ]
     },
-    "contribution_tiers": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::contribution-tier.contribution-tier"
-    },
     "hard_goal": {
       "type": "integer",
       "required": true,
       "min": 0
+    },
+    "contribution_tiers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::contribution-tier.contribution-tier",
+      "mappedBy": "project"
     }
   }
 }

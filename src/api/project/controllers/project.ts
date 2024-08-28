@@ -107,7 +107,6 @@ export default factories.createCoreController('api::project.project', ({ strapi 
       try {
         const now = new Date();
         ctx.request.body.data.users_permissions_user = user.id;
-        ctx.request.body.data.users_permissions_user = user.id;
         ctx.request.body.data.createdAt = now;
         ctx.request.body.data.updatedAt = now
         ctx.request.body.data.publishedAt = now

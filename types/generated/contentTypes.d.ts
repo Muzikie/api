@@ -887,6 +887,11 @@ export interface ApiContributionTierContributionTier
         number
       >;
     image: Attribute.Media<'images'>;
+    project: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'manyToOne',
+      'api::project.project'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1030,11 +1035,6 @@ export interface ApiProjectProject extends Schema.CollectionType {
     images: Attribute.Media<'images', true>;
     video: Attribute.Media<'videos'>;
     audio: Attribute.Media<'audios'>;
-    contribution_tiers: Attribute.Relation<
-      'api::project.project',
-      'oneToMany',
-      'api::contribution-tier.contribution-tier'
-    >;
     hard_goal: Attribute.Integer &
       Attribute.Required &
       Attribute.SetMinMax<
@@ -1043,6 +1043,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
         },
         number
       >;
+    contribution_tiers: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::contribution-tier.contribution-tier'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
