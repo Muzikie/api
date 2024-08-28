@@ -83,6 +83,12 @@
       "relation": "oneToMany",
       "target": "api::contribution-tier.contribution-tier",
       "mappedBy": "project"
+    },
+    "reactions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::reaction.reaction",
+      "mappedBy": "project"
     }
   }
 }

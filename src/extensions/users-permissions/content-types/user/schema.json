@@ -83,6 +83,12 @@
       "relation": "oneToMany",
       "target": "api::vote.vote",
       "mappedBy": "users_permissions_user"
+    },
+    "reactions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::reaction.reaction",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

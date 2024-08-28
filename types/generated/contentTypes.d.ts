@@ -739,6 +739,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::vote.vote'
     >;
+    reactions: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::reaction.reaction'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1048,6 +1053,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::contribution-tier.contribution-tier'
     >;
+    reactions: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::reaction.reaction'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1059,6 +1069,52 @@ export interface ApiProjectProject extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiReactionReaction extends Schema.CollectionType {
+  collectionName: 'reactions';
+  info: {
+    singularName: 'reaction';
+    pluralName: 'reactions';
+    displayName: 'Reaction';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    emoji: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 1;
+        maxLength: 10;
+      }>;
+    entity_type: Attribute.Enumeration<['project', 'content']>;
+    users_permissions_user: Attribute.Relation<
+      'api::reaction.reaction',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    project: Attribute.Relation<
+      'api::reaction.reaction',
+      'manyToOne',
+      'api::project.project'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::reaction.reaction',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::reaction.reaction',
       'oneToOne',
       'admin::user'
     > &
@@ -1274,6 +1330,7 @@ declare module '@strapi/types' {
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
       'api::project.project': ApiProjectProject;
+      'api::reaction.reaction': ApiReactionReaction;
       'api::song.song': ApiSongSong;
       'api::song-badge.song-badge': ApiSongBadgeSongBadge;
       'api::vote.vote': ApiVoteVote;
