@@ -850,6 +850,61 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
   };
 }
 
+export interface ApiContributionTierContributionTier
+  extends Schema.CollectionType {
+  collectionName: 'contribution_tiers';
+  info: {
+    singularName: 'contribution-tier';
+    pluralName: 'contribution-tiers';
+    displayName: 'ContributionTier';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 3;
+      }>;
+    description: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        minLength: 10;
+        maxLength: 100;
+      }>;
+    rewards: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 140;
+      }>;
+    amount: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    image: Attribute.Media<'images'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPlatformPlatform extends Schema.CollectionType {
   collectionName: 'platforms';
   info: {
@@ -967,10 +1022,6 @@ export interface ApiProjectProject extends Schema.CollectionType {
     financial_goal: Attribute.Integer;
     current_funding: Attribute.Integer;
     deadline: Attribute.Date;
-    contribution_tiers: Attribute.Component<
-      'contribution-tier.contribution-tier',
-      true
-    >;
     users_permissions_user: Attribute.Relation<
       'api::project.project',
       'oneToOne',
@@ -979,6 +1030,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
     images: Attribute.Media<'images', true>;
     video: Attribute.Media<'videos'>;
     audio: Attribute.Media<'audios'>;
+    contribution_tiers: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::contribution-tier.contribution-tier'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1201,6 +1257,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
       'api::badge.badge': ApiBadgeBadge;
+      'api::contribution-tier.contribution-tier': ApiContributionTierContributionTier;
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
       'api::project.project': ApiProjectProject;
