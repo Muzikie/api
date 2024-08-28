@@ -35,6 +35,7 @@ export default factories.createCoreController('api::project.project', ({ strapi 
   };
 
   return {
+    // PUT
     async update(ctx) {
       const { id } = ctx.params;
       const user = ctx.state.user;
@@ -97,6 +98,29 @@ export default factories.createCoreController('api::project.project', ({ strapi 
 
       const sanitizedResults = await this.sanitizeOutput(entity, ctx);
       return this.transformResponse(sanitizedResults);
+    },
+
+    // POST
+    async create(ctx) {
+      const { user } = ctx.state;
+  
+      try {
+        const project = await strapi.entityService.create(
+          'api::project.project',
+          {
+            data: {
+              user_id: user.id,
+              ...ctx.request.body,
+            },
+          });
+  
+        // TODO: Call the Smart Contract method here to register the project on the blockchain
+  
+        const sanitizedEntity = await this.sanitizeOutput(project, ctx);
+        return this.transformResponse(sanitizedEntity);
+      } catch (err) {
+        ctx.throw(500, err);
+      }
     }
   };
 });
