@@ -50,6 +50,15 @@ export default factories.createCoreController('api::reaction.reaction', ({ strap
           },
         });
 
+        // Increment project reaction count
+        const { reaction_count } = await strapi.entityService.findOne('api::project.project', project);
+        await strapi.entityService.update('api::project.project', project, {
+          data: {
+            reaction_count: reaction_count + 1,
+          }
+        });
+
+        // Respond
         const sanitizedEntity = await this.sanitizeOutput(reaction, ctx);
         return this.transformResponse(sanitizedEntity);
       }
@@ -60,13 +69,13 @@ export default factories.createCoreController('api::reaction.reaction', ({ strap
 
   // DELETE
   async delete(ctx) {
-    const { project } = ctx.params;
+    const { id } = ctx.params;
     const user = ctx.state.user;
 
     // Find the reaction to ensure it belongs to the user
     const reaction = await strapi.entityService.findMany('api::reaction.reaction', {
       filters: {
-        project,
+        project: id,
         users_permissions_user: user.id,
       },
     });
@@ -77,6 +86,16 @@ export default factories.createCoreController('api::reaction.reaction', ({ strap
 
     // Delete the reaction
     await strapi.entityService.delete('api::reaction.reaction', reaction[0].id);
+
+    // Decrement project reaction count
+    const { reaction_count } = await strapi.entityService.findOne('api::project.project', id);
+    await strapi.entityService.update('api::project.project', id, {
+      data: {
+        reaction_count: reaction_count - 1,
+      }
+    });
+
+    // Respond
     return ctx.send({ message: 'Reaction deleted successfully' });
   }
 }));

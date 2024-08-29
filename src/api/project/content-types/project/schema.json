@@ -89,6 +89,12 @@
       "relation": "oneToMany",
       "target": "api::reaction.reaction",
       "mappedBy": "project"
+    },
+    "reaction_count": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "default": 0
     }
   }
 }
