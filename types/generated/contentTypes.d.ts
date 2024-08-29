@@ -1058,6 +1058,15 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::reaction.reaction'
     >;
+    reaction_count: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Attribute.DefaultTo<0>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
