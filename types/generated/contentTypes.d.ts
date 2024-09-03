@@ -915,6 +915,60 @@ export interface ApiContributionTierContributionTier
   };
 }
 
+export interface ApiExclusiveContentExclusiveContent
+  extends Schema.CollectionType {
+  collectionName: 'exclusive_contents';
+  info: {
+    singularName: 'exclusive-content';
+    pluralName: 'exclusive-contents';
+    displayName: 'ExclusiveContent';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        minLength: 5;
+      }>;
+    media: Attribute.Media<'images' | 'videos' | 'audios', true>;
+    project: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'manyToOne',
+      'api::project.project'
+    >;
+    accessible_tiers: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'oneToMany',
+      'api::contribution-tier.contribution-tier'
+    >;
+    public_access: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    description: Attribute.Text &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 140;
+      }>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPlatformPlatform extends Schema.CollectionType {
   collectionName: 'platforms';
   info: {
@@ -1067,6 +1121,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
         number
       > &
       Attribute.DefaultTo<0>;
+    exclusive_contents: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::exclusive-content.exclusive-content'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1336,6 +1395,7 @@ declare module '@strapi/types' {
       'plugin::i18n.locale': PluginI18NLocale;
       'api::badge.badge': ApiBadgeBadge;
       'api::contribution-tier.contribution-tier': ApiContributionTierContributionTier;
+      'api::exclusive-content.exclusive-content': ApiExclusiveContentExclusiveContent;
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
       'api::project.project': ApiProjectProject;
