@@ -1076,7 +1076,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
     description: Attribute.Text &
       Attribute.Required &
       Attribute.SetMinMaxLength<{
-        minLength: 100;
+        minLength: 140;
       }>;
     project_type: Attribute.Enumeration<
       ['single', 'EP', 'Album', 'Music video']
@@ -1126,6 +1126,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::exclusive-content.exclusive-content'
     >;
+    summary: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        minLength: 70;
+        maxLength: 140;
+      }>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
