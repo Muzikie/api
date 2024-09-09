@@ -20,7 +20,7 @@
     "description": {
       "type": "text",
       "required": true,
-      "minLength": 100
+      "minLength": 140
     },
     "project_type": {
       "type": "enumeration",
@@ -101,6 +101,11 @@
       "relation": "oneToMany",
       "target": "api::exclusive-content.exclusive-content",
       "mappedBy": "project"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 70,
+      "maxLength": 140
     }
   }
 }
