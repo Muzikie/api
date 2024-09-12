@@ -744,6 +744,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::reaction.reaction'
     >;
+    contributions: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::contribution.contribution'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -855,6 +860,51 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
   };
 }
 
+export interface ApiContributionContribution extends Schema.CollectionType {
+  collectionName: 'contributions';
+  info: {
+    singularName: 'contribution';
+    pluralName: 'contributions';
+    displayName: 'contribution';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    amount: Attribute.Float;
+    contribution_tier: Attribute.Relation<
+      'api::contribution.contribution',
+      'manyToOne',
+      'api::contribution-tier.contribution-tier'
+    >;
+    project: Attribute.Relation<
+      'api::contribution.contribution',
+      'manyToOne',
+      'api::project.project'
+    >;
+    users_permissions_user: Attribute.Relation<
+      'api::contribution.contribution',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::contribution.contribution',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::contribution.contribution',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiContributionTierContributionTier
   extends Schema.CollectionType {
   collectionName: 'contribution_tiers';
@@ -896,6 +946,11 @@ export interface ApiContributionTierContributionTier
       'api::contribution-tier.contribution-tier',
       'manyToOne',
       'api::project.project'
+    >;
+    contributions: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'oneToMany',
+      'api::contribution.contribution'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1131,6 +1186,11 @@ export interface ApiProjectProject extends Schema.CollectionType {
         minLength: 70;
         maxLength: 140;
       }>;
+    contributions: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::contribution.contribution'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1399,6 +1459,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
       'api::badge.badge': ApiBadgeBadge;
+      'api::contribution.contribution': ApiContributionContribution;
       'api::contribution-tier.contribution-tier': ApiContributionTierContributionTier;
       'api::exclusive-content.exclusive-content': ApiExclusiveContentExclusiveContent;
       'api::platform.platform': ApiPlatformPlatform;

@@ -45,6 +45,12 @@
       "relation": "manyToOne",
       "target": "api::project.project",
       "inversedBy": "contribution_tiers"
+    },
+    "contributions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::contribution.contribution",
+      "mappedBy": "contribution_tier"
     }
   }
 }
