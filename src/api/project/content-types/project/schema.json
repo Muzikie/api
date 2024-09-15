@@ -106,6 +106,12 @@
       "type": "string",
       "minLength": 70,
       "maxLength": 140
+    },
+    "contributions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::contribution.contribution",
+      "mappedBy": "project"
     }
   }
 }
