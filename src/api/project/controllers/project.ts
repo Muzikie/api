@@ -35,6 +35,13 @@ export default factories.createCoreController('api::project.project', ({ strapi 
   };
 
   return {
+    // GET
+    async  feed(ctx) {
+      return ctx.send({
+        data: {},
+        pagination: {},
+      });
+    },
     // PUT
     async update(ctx) {
       const { id } = ctx.params;
