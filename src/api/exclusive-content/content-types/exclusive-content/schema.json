@@ -46,6 +46,9 @@
       "type": "text",
       "required": true,
       "minLength": 140
+    },
+    "reaction_count": {
+      "type": "integer"
     }
   }
 }

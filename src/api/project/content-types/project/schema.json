@@ -26,9 +26,9 @@
       "type": "enumeration",
       "enum": [
         "single",
-        "EP",
-        "Album",
-        "Music video"
+        "ep",
+        "album",
+        "music_video"
       ],
       "required": true
     },
@@ -112,6 +112,15 @@
       "relation": "oneToMany",
       "target": "api::contribution.contribution",
       "mappedBy": "project"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "live",
+        "draft",
+        "successful",
+        "failed"
+      ]
     }
   }
 }
