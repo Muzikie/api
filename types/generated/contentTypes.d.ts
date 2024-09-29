@@ -1006,6 +1006,7 @@ export interface ApiExclusiveContentExclusiveContent
       Attribute.SetMinMaxLength<{
         minLength: 140;
       }>;
+    reaction_count: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1134,7 +1135,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
         minLength: 140;
       }>;
     project_type: Attribute.Enumeration<
-      ['single', 'EP', 'Album', 'Music video']
+      ['single', 'ep', 'album', 'music_video']
     > &
       Attribute.Required;
     planned_release_date: Attribute.Date;
@@ -1191,6 +1192,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::contribution.contribution'
     >;
+    status: Attribute.Enumeration<['live', 'draft', 'successful', 'failed']>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
