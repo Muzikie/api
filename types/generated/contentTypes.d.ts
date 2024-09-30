@@ -749,6 +749,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::contribution.contribution'
     >;
+    wallet: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::wallet.wallet'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1080,11 +1085,6 @@ export interface ApiProfileProfile extends Schema.CollectionType {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    wallet: Attribute.Relation<
-      'api::profile.profile',
-      'oneToOne',
-      'api::wallet.wallet'
-    >;
     points: Attribute.Integer &
       Attribute.Required &
       Attribute.SetMinMax<
@@ -1414,15 +1414,15 @@ export interface ApiWalletWallet extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
+    public_key: Attribute.String & Attribute.Required & Attribute.Unique;
+    encrypted_private_key: Attribute.JSON & Attribute.Required;
     address: Attribute.String & Attribute.Required;
-    balance: Attribute.BigInteger &
-      Attribute.Required &
-      Attribute.DefaultTo<'0'>;
-    seed: Attribute.String & Attribute.Required;
-    profile: Attribute.Relation<
+    encryption_metadata: Attribute.JSON & Attribute.Required;
+    blockchain: Attribute.Enumeration<['Solana', 'Klayr']> & Attribute.Required;
+    users_permissions_user: Attribute.Relation<
       'api::wallet.wallet',
       'oneToOne',
-      'api::profile.profile'
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

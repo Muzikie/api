@@ -95,6 +95,12 @@
       "relation": "oneToMany",
       "target": "api::contribution.contribution",
       "mappedBy": "users_permissions_user"
+    },
+    "wallet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::wallet.wallet",
+      "mappedBy": "users_permissions_user"
     }
   }
 }
