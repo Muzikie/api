@@ -28,12 +28,6 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
     },
-    "wallet": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::wallet.wallet",
-      "mappedBy": "profile"
-    },
     "points": {
       "type": "integer",
       "required": true,
