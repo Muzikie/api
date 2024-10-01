@@ -314,11 +314,30 @@ export default factories.createCoreController(
           // Proceed with creating the the project
           const result = await super.create(ctx);
 
-          // TODO: Call the Smart Contract method here to register the project on the blockchain
-          // and if not created, revert the centralized project creation.
+         
+          // const wallet = await strapi.entityService.findMany(
+          //   'api::wallet.wallet',
+          //   {
+          //     users_permissions_user: user.id,
+          //   },
+          // );
+
+          // if(wallet.length) {
+          //    // TODO: Call the Smart Contract method here to register the project on the blockchain
+          //   // and if not created, revert the centralized project creation.
+
+
+          //   // If the Smart contract interaction was unsuccessful, we have to delete the recently created
+          //   // Project using result.data.id
+          //   throw new Error(`Error transaction: ${result.data.id}`);
+          // } else {
+          //   throw new Error('Wallet not found');
+          // }
+
 
           return result;
         } catch (err) {
+          // const id = err.message.split('Error transaction:')[1]
           ctx.throw(500, err);
         }
       },
