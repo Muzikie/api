@@ -10,6 +10,8 @@ import {
   MEX_PROJECT_VIDEO_SIZE,
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
+import { Program, AnchorProvider, web3, utils, BN, setProvider } from "@coral-xyz/anchor"
+
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(item => item.users_permissions_user.id === userId);
@@ -314,25 +316,28 @@ export default factories.createCoreController(
           // Proceed with creating the the project
           const result = await super.create(ctx);
 
+          
          
-          // const wallet = await strapi.entityService.findMany(
-          //   'api::wallet.wallet',
-          //   {
-          //     users_permissions_user: user.id,
-          //   },
-          // );
+          const wallet = await strapi.entityService.findMany(
+            'api::wallet.wallet',
+            {
+              filters: {
+                users_permissions_user: user.id,
+              },
+            }
+          );
 
-          // if(wallet.length) {
-          //    // TODO: Call the Smart Contract method here to register the project on the blockchain
-          //   // and if not created, revert the centralized project creation.
+          if(wallet.length) {
+             // TODO: Call the Smart Contract method here to register the project on the blockchain
+            // and if not created, revert the centralized project creation.
 
-
-          //   // If the Smart contract interaction was unsuccessful, we have to delete the recently created
-          //   // Project using result.data.id
-          //   throw new Error(`Error transaction: ${result.data.id}`);
-          // } else {
-          //   throw new Error('Wallet not found');
-          // }
+            console.log(wallet);
+            // If the Smart contract interaction was unsuccessful, we have to delete the recently created
+            // Project using result.data.id
+            // throw new Error(`Error transaction: ${result.data.id}`);
+          } else {
+            throw new Error('Wallet not found');
+          }
 
 
           return result;
