@@ -10,8 +10,27 @@ import {
   MEX_PROJECT_VIDEO_SIZE,
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
-import { Program, AnchorProvider, web3, utils, BN, setProvider } from "@coral-xyz/anchor"
 
+const anchor = require('@coral-xyz/anchor');
+const { AnchorProvider } = require('@coral-xyz/anchor');
+const { Keypair, Connection, PublicKey } = require('@solana/web3.js');
+const { SystemProgram } = anchor.web3;
+import idl from "./crowdfunding.json";
+import { Crowdfunding } from "./crowdfunding"
+
+// Set up the provider
+const walletSecretKey = Uint8Array.from([11,72,89,34,108,200,52,103,110,33,166,195,151,200,41,185,98,95,166,222,231,166,237,126,150,104,237,38,163,46,101,243,70,161,208,249,217,56,15,127,110,39,222,168,186,98,154,226,203,90,126,195,79,163,191,178,141,86,159,204,105,147,104,83]);
+const walletKeypair = Keypair.fromSecretKey(walletSecretKey);
+
+// 1. Create a connection to the local Solana cluster
+const localnetConnection = new Connection('http://localhost:8899', 'confirmed');
+
+// 2. Set up the provider using the connection and wallet
+const provider = new AnchorProvider(localnetConnection, new anchor.Wallet(walletKeypair), {
+  preflightCommitment: 'confirmed',
+});
+const programId = new PublicKey(idl.address);
+const program = new anchor.Program(idl, provider);
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(item => item.users_permissions_user.id === userId);
@@ -315,9 +334,7 @@ export default factories.createCoreController(
 
           // Proceed with creating the the project
           const result = await super.create(ctx);
-
-          
-         
+         // find user's sk to sign and send TX to solana program
           const wallet = await strapi.entityService.findMany(
             'api::wallet.wallet',
             {
@@ -331,7 +348,36 @@ export default factories.createCoreController(
              // TODO: Call the Smart Contract method here to register the project on the blockchain
             // and if not created, revert the centralized project creation.
 
-            console.log(wallet);
+            // Generate a new keypair for the project
+            const projectKeypair = Keypair.genera
+            // Extract the campaign info to send to Solana
+            const projectTitle = data.title;
+            const projectDescription = data.description;
+            const goalAmount = data.goal_amount;
+            
+            try {
+              // Transaction: Create a project campaign on Solana
+              await program.rpc.initializeProject(
+                  projectTitle, 
+                  projectDescription, 
+                  new anchor.BN(goalAmount),
+                  {
+                      accounts: {
+                          projectAccount: projectKeypair.publicKey,
+                          user: wallet[0].public_key, // Assuming the wallet has the user's Solana address
+                          systemProgram: SystemProgram.programId,
+                      },
+                      signers: [projectKeypair, walletKeypair],
+                  }
+              );
+
+              console.log('Project campaign successfully created on the blockchain');
+          } catch (blockchainError) {
+              // If the smart contract interaction was unsuccessful, delete the recently created project in Strapi
+              await strapi.entityService.delete('api::project.project', result.data.id);
+              throw new Error(`Blockchain transaction failed. Error: ${blockchainError.message}`);
+          }
+            
             // If the Smart contract interaction was unsuccessful, we have to delete the recently created
             // Project using result.data.id
             // throw new Error(`Error transaction: ${result.data.id}`);
