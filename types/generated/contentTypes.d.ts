@@ -1094,6 +1094,7 @@ export interface ApiProfileProfile extends Schema.CollectionType {
         number
       > &
       Attribute.DefaultTo<0>;
+    avatar: Attribute.Media<'images'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1192,7 +1193,8 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::contribution.contribution'
     >;
-    status: Attribute.Enumeration<['live', 'draft', 'successful', 'failed']>;
+    status: Attribute.Enumeration<['live', 'draft', 'successful', 'failed']> &
+      Attribute.DefaultTo<'draft'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
