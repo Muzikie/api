@@ -8,7 +8,7 @@ if (!PVK_ENCRYPTION_SALT) {
 const pvkEncryptionSalt = Buffer.from(PVK_ENCRYPTION_SALT, 'hex');
 
 // Function to encrypt the private key
-export const encryptPrivateKey = (privateKey: string, iv: Buffer) => {
+export const encryptPrivateKey = (privateKey: Uint8Array, iv: Buffer) => {
     const cipher = crypto.createCipheriv(algorithm, pvkEncryptionSalt, iv);
     const encrypted = Buffer.concat([cipher.update(privateKey), cipher.final()]);
     return {
@@ -20,6 +20,5 @@ export const encryptPrivateKey = (privateKey: string, iv: Buffer) => {
 // Function to decrypt the private key
 export const decryptPrivateKey = (encryptedData: string, iv: string) => {
     const decipher = crypto.createDecipheriv(algorithm, pvkEncryptionSalt, Buffer.from(iv, 'hex'));
-    const decrypted = Buffer.concat([decipher.update(Buffer.from(encryptedData, 'hex')), decipher.final()]);
-    return decrypted.toString();
+    return Buffer.concat([decipher.update(Buffer.from(encryptedData, 'hex')), decipher.final()]);
 };

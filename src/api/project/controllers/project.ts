@@ -4,20 +4,24 @@
 
 import { factories } from '@strapi/strapi';
 import { parseMultipartData } from '@strapi/utils';
+import { Wallet, Program, AnchorProvider, BN } from '@coral-xyz/anchor';
+import { Keypair, Connection, PublicKey } from '@solana/web3.js';
+
 import {
   TOTAL_PROJECT_IMAGES,
   MEX_PROJECT_IMAGE_SIZE,
   MEX_PROJECT_VIDEO_SIZE,
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
-
-const anchor = require('@coral-xyz/anchor');
-const { AnchorProvider } = require('@coral-xyz/anchor');
-const { Keypair, Connection, PublicKey } = require('@solana/web3.js');
-const { SystemProgram } = anchor.web3;
 import idl from './crowdfunding.json'; // @todo Fetch from the network
-import { Crowdfunding } from './crowdfunding';
+// import { Crowdfunding } from './crowdfunding';
 import { decryptPrivateKey } from '../../../utils/crypto';
+
+// const { SystemProgram } = anchor.web3;
+interface EncryptedMeta {
+  iv: string;
+  encryptedData: string;
+}
 
 // Set up the provider
 // const walletSecretKey = Uint8Array.from([11, 72, 89, 34, 108, 200, 52, 103, 110, 33, 166, 195, 151, 200, 41, 185, 98, 95, 166, 222, 231, 166, 237, 126, 150, 104, 237, 38, 163, 46, 101, 243, 70, 161, 208, 249, 217, 56, 15, 127, 110, 39, 222, 168, 186, 98, 154, 226, 203, 90, 126, 195, 79, 163, 191, 178, 141, 86, 159, 204, 105, 147, 104, 83]);
@@ -28,7 +32,7 @@ import { decryptPrivateKey } from '../../../utils/crypto';
 const connection = new Connection(process.env.NETWORK_URL, 'confirmed');
 
 // 2. Set up the provider using the connection and wallet
-const programId = new PublicKey(idl.address);
+// const programId = new PublicKey(idl.address);
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(item => item.users_permissions_user.id === userId);
@@ -333,56 +337,74 @@ export default factories.createCoreController(
 
           // Proceed with creating the the project
           const result = await super.create(ctx);
-          console.log({result})
+          // console.log({result})
           // find user's sk to sign and send TX to solana program
           const wallet = await strapi.entityService.findMany(
             'api::wallet.wallet',
             {
               filters: {
-                users_permissions_user: ctx.request.body.data.users_permissions_user,
+                users_permissions_user: user.id,
               },
             }
           );
+          // console.log({wallet});
 
-          if (wallet.length) {
+          if (wallet.length === 1) {
+            console.log(wallet);
             // TODO: Call the Smart Contract method here to register the project on the blockchain
             // and if not created, revert the centralized project creation.
-            console.log(`wallet is ${wallet}`);
-            const {iv, encryptedData} = JSON.parse(String(wallet[0].encrypted_private_key));
-            console.log({iv, encryptedData});
+            const {iv, encryptedData} = wallet[0].encrypted_private_key as unknown as EncryptedMeta;
+            // console.log({iv, encryptedData, publicKey: wallet[0].public_key});
             const privateKey = decryptPrivateKey(encryptedData, iv)
-            console.log({privateKey});
+            // console.log('LENGTH', privateKey.length);
 
 
             const keyPair = Keypair.fromSecretKey(privateKey);
-            console.log({keyPair});
-            const provider = new AnchorProvider(connection, new anchor.Wallet(keyPair), {
+            // console.log({keyPair});
+            const provider = new AnchorProvider(connection, new Wallet(keyPair), {
               preflightCommitment: 'confirmed',
             });
-            console.log({provider});
-            const program = new anchor.Program(idl, provider);
-            console.log({program});
-
-
-            // Extract the campaign info to send to Solana
-            const projectTitle = data.title;
-            const projectDescription = data.description;
-            const goalAmount = data.goal_amount;
+            // console.log({provider});
+            // @ts-expect-error
+            const program = new Program(idl, provider);
+            // console.log({program});
 
             try {
-              // Transaction: Create a project campaign on Solana
-              const networkResult = await program.rpc.initProject(
-                new anchor.BN(result.id),
-                new anchor.BN(result.attribute.soft_goal),
-                new anchor.BN(result.attribute.hard_goal),
-                new anchor.BN(result.attribute.deadline),
-                wallet[0].public_key,
-                process.env.ESCROW_PUBLIC_KEY, // Muzikie / Viora pk?
-                {
-                  accounts: {
-                  },
-                }
+              const [projectPDA] = PublicKey.findProgramAddressSync(
+                [new BN(result.data.id).toArrayLike(Buffer, "le", 8)],
+                program.programId
               );
+              console.log('accounts', {
+                owner: wallet[0].public_key,
+                project: projectPDA,
+                escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
+                systemProgram: new PublicKey('11111111111111111111111111111111'),
+              });
+
+
+              const escrowKeyPair = Keypair.fromSecretKey(
+                Uint8Array.from([81,52,152,57,236,105,29,10,44,190,21,55,70,89,127,31,248,101,196,189,202,164,177,204,173,182,51,106,241,154,168,191,162,128,94,42,52,96,85,34,60,246,44,29,162,236,247,124,195,127,186,25,107,145,89,129,254,186,107,51,69,250,211,52])
+              );
+              const hexString = Buffer.from(escrowKeyPair.secretKey).toString('hex');
+              console.log(hexString);
+
+              // Transaction: Create a project campaign on Solana
+              const networkResult = await program.methods.initProject(
+                new BN(result.data.id),
+                new BN(result.data.attributes.soft_goal),
+                new BN(result.data.attributes.hard_goal),
+                new BN((new Date(result.data.attributes.deadline).getTime()) / 1000),
+                new PublicKey(wallet[0].public_key),
+                new PublicKey(process.env.ESCROW_PUBLIC_KEY),
+              )
+              .accounts({
+                owner: wallet[0].public_key,
+                project: projectPDA,
+                escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
+                systemProgram: new PublicKey('11111111111111111111111111111111'),
+              })
+              .signers([keyPair, escrowKeyPair])
+              .rpc();
 
               console.log({networkResult})
 
