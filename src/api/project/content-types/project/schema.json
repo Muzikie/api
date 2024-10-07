@@ -120,7 +120,8 @@
         "draft",
         "successful",
         "failed"
-      ]
+      ],
+      "default": "draft"
     }
   }
 }

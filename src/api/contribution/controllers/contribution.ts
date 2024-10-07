@@ -21,13 +21,18 @@ export default factories.createCoreController('api::contribution.contribution', 
         return ctx.badRequest('Project not found');
       }
 
+      const now = new Date();
+
       // Create the contribution
       const contribution = await strapi.entityService.create('api::contribution.contribution', {
         data: {
           amount: tier.amount,
           contribution_tier: tier.id,
           project: project.id,
-          users_permissions_user: user.id
+          users_permissions_user: user.id,
+          createdAt: now,
+          updatedAt: now,
+          publishedAt: now,
         },
       });
 

@@ -22,7 +22,8 @@ export default factories.createCoreController('api::profile.profile', ({ strapi 
 
     const profile = await strapi.db.query('api::profile.profile').findOne({
       where: { id: link.profile_id },
-    })
+      populate: ['avatar'],
+    });
 
     if (!profile) {
       return ctx.notFound('Profile not found');
