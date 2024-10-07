@@ -23,17 +23,7 @@ interface EncryptedMeta {
   encryptedData: string;
 }
 
-// Set up the provider
-// const walletSecretKey = Uint8Array.from([11, 72, 89, 34, 108, 200, 52, 103, 110, 33, 166, 195, 151, 200, 41, 185, 98, 95, 166, 222, 231, 166, 237, 126, 150, 104, 237, 38, 163, 46, 101, 243, 70, 161, 208, 249, 217, 56, 15, 127, 110, 39, 222, 168, 186, 98, 154, 226, 203, 90, 126, 195, 79, 163, 191, 178, 141, 86, 159, 204, 105, 147, 104, 83]);
-// const walletKeypair = Keypair.fromSecretKey(walletSecretKey);
-// get user private key from DB instead of the above
-
-// 1. Create a connection to the local Solana cluster
 const connection = new Connection(process.env.NETWORK_URL, 'confirmed');
-
-// 2. Set up the provider using the connection and wallet
-// const programId = new PublicKey(idl.address);
-
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(item => item.users_permissions_user.id === userId);
   if (profile) {
@@ -307,6 +297,10 @@ export default factories.createCoreController(
             id,
             ctx.request.body,
           );
+
+          // If the ctx.request.body.status: 'live'
+          // then publish the program
+          // if publication unsuccessful, revert the Strapi changes
         }
 
         const sanitizedResults = await this.sanitizeOutput(entity, ctx);
@@ -329,7 +323,6 @@ export default factories.createCoreController(
           }
 
           const now = new Date();
-          //ctx.request.body.data.users_permissions_user = user.Id;
           ctx.request.body.data.users_permissions_user = 41;
           ctx.request.body.data.createdAt = now;
           ctx.request.body.data.updatedAt = now;
@@ -337,7 +330,6 @@ export default factories.createCoreController(
 
           // Proceed with creating the the project
           const result = await super.create(ctx);
-          // console.log({result})
           // find user's sk to sign and send TX to solana program
           const wallet = await strapi.entityService.findMany(
             'api::wallet.wallet',
@@ -347,40 +339,24 @@ export default factories.createCoreController(
               },
             }
           );
-          // console.log({wallet});
 
           if (wallet.length === 1) {
-            console.log(wallet);
-            // TODO: Call the Smart Contract method here to register the project on the blockchain
-            // and if not created, revert the centralized project creation.
             const {iv, encryptedData} = wallet[0].encrypted_private_key as unknown as EncryptedMeta;
-            // console.log({iv, encryptedData, publicKey: wallet[0].public_key});
             const privateKey = decryptPrivateKey(encryptedData, iv)
-            // console.log('LENGTH', privateKey.length);
 
 
             const keyPair = Keypair.fromSecretKey(privateKey);
-            // console.log({keyPair});
             const provider = new AnchorProvider(connection, new Wallet(keyPair), {
               preflightCommitment: 'confirmed',
             });
-            // console.log({provider});
             // @ts-expect-error
             const program = new Program(idl, provider);
-            // console.log({program});
 
             try {
               const [projectPDA] = PublicKey.findProgramAddressSync(
                 [new BN(result.data.id).toArrayLike(Buffer, "le", 8)],
                 program.programId
               );
-              console.log('accounts', {
-                owner: wallet[0].public_key,
-                project: projectPDA,
-                escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
-                systemProgram: new PublicKey('11111111111111111111111111111111'),
-              });
-
 
               const escrowKeyPair = Keypair.fromSecretKey(
                 Uint8Array.from([81,52,152,57,236,105,29,10,44,190,21,55,70,89,127,31,248,101,196,189,202,164,177,204,173,182,51,106,241,154,168,191,162,128,94,42,52,96,85,34,60,246,44,29,162,236,247,124,195,127,186,25,107,145,89,129,254,186,107,51,69,250,211,52])
@@ -398,12 +374,12 @@ export default factories.createCoreController(
                 new PublicKey(process.env.ESCROW_PUBLIC_KEY),
               )
               .accounts({
-                owner: wallet[0].public_key,
+                owner: new PublicKey(wallet[0].public_key),
                 project: projectPDA,
                 escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
                 systemProgram: new PublicKey('11111111111111111111111111111111'),
               })
-              .signers([keyPair, escrowKeyPair])
+              .signers([keyPair])
               .rpc();
 
               console.log({networkResult})
@@ -414,15 +390,9 @@ export default factories.createCoreController(
               await strapi.entityService.delete('api::project.project', result.data.id);
               throw new Error(`Blockchain transaction failed. Error: ${blockchainError.message}`);
             }
-
-            // If the Smart contract interaction was unsuccessful, we have to delete the recently created
-            // Project using result.data.id
-            // throw new Error(`Error transaction: ${result.data.id}`);
           } else {
             throw new Error('Wallet not found');
           }
-
-
           return result;
         } catch (err) {
           // const id = err.message.split('Error transaction:')[1]

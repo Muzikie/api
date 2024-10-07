@@ -152,8 +152,7 @@
         },
         {
           "name": "escrow",
-          "writable": true,
-          "signer": true
+          "writable": true
         },
         {
           "name": "system_program",

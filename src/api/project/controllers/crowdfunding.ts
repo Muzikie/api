@@ -158,8 +158,7 @@ export type Crowdfunding = {
         },
         {
           "name": "escrow",
-          "writable": true,
-          "signer": true
+          "writable": true
         },
         {
           "name": "systemProgram",
