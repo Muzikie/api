@@ -46,6 +46,9 @@ export default factories.createCoreController('api::contribution.contribution', 
       // Return the created contribution
       const sanitizedEntity = await this.sanitizeOutput(contribution, ctx);
 
+      // interact with program
+      // send tokens to the program
+
       // before returning the value, make sure to update the Solana project too
       return this.transformResponse(sanitizedEntity);
     } catch (err) {

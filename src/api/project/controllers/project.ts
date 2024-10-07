@@ -301,6 +301,13 @@ export default factories.createCoreController(
           // If the ctx.request.body.status: 'live'
           // then publish the program
           // if publication unsuccessful, revert the Strapi changes
+
+
+          // entity = await strapi.entityService.update(
+          //   'api::project.project',
+          //   id,
+          //   {status: 'draft'},
+          // );
         }
 
         const sanitizedResults = await this.sanitizeOutput(entity, ctx);

@@ -18,6 +18,8 @@ export default factories.createCoreController('api::contribution-tier.contributi
 
       // Proceed with creating the the project
       const result = await super.create(ctx);
+      // result.data.id
+      // result.data.attributes.amount
 
       // TODO: Call the Smart Contract method here to register the project on the blockchain
       // and if not created, revert the centralized project creation.
