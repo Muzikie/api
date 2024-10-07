@@ -15,22 +15,20 @@ const anchor = require('@coral-xyz/anchor');
 const { AnchorProvider } = require('@coral-xyz/anchor');
 const { Keypair, Connection, PublicKey } = require('@solana/web3.js');
 const { SystemProgram } = anchor.web3;
-import idl from "./crowdfunding.json";
-import { Crowdfunding } from "./crowdfunding"
+import idl from './crowdfunding.json'; // @todo Fetch from the network
+import { Crowdfunding } from './crowdfunding';
+import { decryptPrivateKey } from '../../../utils/crypto';
 
 // Set up the provider
-const walletSecretKey = Uint8Array.from([11, 72, 89, 34, 108, 200, 52, 103, 110, 33, 166, 195, 151, 200, 41, 185, 98, 95, 166, 222, 231, 166, 237, 126, 150, 104, 237, 38, 163, 46, 101, 243, 70, 161, 208, 249, 217, 56, 15, 127, 110, 39, 222, 168, 186, 98, 154, 226, 203, 90, 126, 195, 79, 163, 191, 178, 141, 86, 159, 204, 105, 147, 104, 83]);
-const walletKeypair = Keypair.fromSecretKey(walletSecretKey);
+// const walletSecretKey = Uint8Array.from([11, 72, 89, 34, 108, 200, 52, 103, 110, 33, 166, 195, 151, 200, 41, 185, 98, 95, 166, 222, 231, 166, 237, 126, 150, 104, 237, 38, 163, 46, 101, 243, 70, 161, 208, 249, 217, 56, 15, 127, 110, 39, 222, 168, 186, 98, 154, 226, 203, 90, 126, 195, 79, 163, 191, 178, 141, 86, 159, 204, 105, 147, 104, 83]);
+// const walletKeypair = Keypair.fromSecretKey(walletSecretKey);
+// get user private key from DB instead of the above
 
 // 1. Create a connection to the local Solana cluster
-const localnetConnection = new Connection('http://localhost:8899', 'confirmed');
+const connection = new Connection(process.env.NETWORK_URL, 'confirmed');
 
 // 2. Set up the provider using the connection and wallet
-const provider = new AnchorProvider(localnetConnection, new anchor.Wallet(walletKeypair), {
-  preflightCommitment: 'confirmed',
-});
 const programId = new PublicKey(idl.address);
-const program = new anchor.Program(idl, provider);
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(item => item.users_permissions_user.id === userId);
@@ -335,6 +333,7 @@ export default factories.createCoreController(
 
           // Proceed with creating the the project
           const result = await super.create(ctx);
+          console.log({result})
           // find user's sk to sign and send TX to solana program
           const wallet = await strapi.entityService.findMany(
             'api::wallet.wallet',
@@ -349,8 +348,22 @@ export default factories.createCoreController(
             // TODO: Call the Smart Contract method here to register the project on the blockchain
             // and if not created, revert the centralized project creation.
             console.log(`wallet is ${wallet}`);
-            // Generate a new keypair for the project
-            const projectKeypair = Keypair.genera
+            const {iv, encryptedData} = JSON.parse(String(wallet[0].encrypted_private_key));
+            console.log({iv, encryptedData});
+            const privateKey = decryptPrivateKey(encryptedData, iv)
+            console.log({privateKey});
+
+
+            const keyPair = Keypair.fromSecretKey(privateKey);
+            console.log({keyPair});
+            const provider = new AnchorProvider(connection, new anchor.Wallet(keyPair), {
+              preflightCommitment: 'confirmed',
+            });
+            console.log({provider});
+            const program = new anchor.Program(idl, provider);
+            console.log({program});
+
+
             // Extract the campaign info to send to Solana
             const projectTitle = data.title;
             const projectDescription = data.description;
@@ -358,19 +371,20 @@ export default factories.createCoreController(
 
             try {
               // Transaction: Create a project campaign on Solana
-              await program.rpc.initProject(
-                projectTitle,
-                projectDescription,
-                new anchor.BN(goalAmount),
+              const networkResult = await program.rpc.initProject(
+                new anchor.BN(result.id),
+                new anchor.BN(result.attribute.soft_goal),
+                new anchor.BN(result.attribute.hard_goal),
+                new anchor.BN(result.attribute.deadline),
+                wallet[0].public_key,
+                process.env.ESCROW_PUBLIC_KEY, // Muzikie / Viora pk?
                 {
                   accounts: {
-                    projectAccount: projectKeypair.publicKey,
-                    owner: wallet[0].public_key, // Assuming the wallet has the user's Solana address
-                    systemProgram: SystemProgram.programId,
                   },
-                  signers: [projectKeypair, walletKeypair],
                 }
               );
+
+              console.log({networkResult})
 
               console.log('Project campaign successfully created on the blockchain');
             } catch (blockchainError) {
