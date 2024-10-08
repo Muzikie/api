@@ -48,7 +48,7 @@ export default factories.createCoreController('api::contribution.contribution', 
       // Update the project's current_funding
       await strapi.entityService.update('api::project.project', project.id, {
         data: {
-          current_funding: project.current_funding + tier.amount
+          current_funding: (BigInt(project.current_funding) + BigInt(tier.amount)).toString()
         }
       });
 
@@ -71,19 +71,24 @@ export default factories.createCoreController('api::contribution.contribution', 
         const keyPair = Keypair.fromSecretKey(privateKey);
         const program = getProgramDetails(keyPair);
         const projectPDA = getProjectPDA(String(project.id), program);
-
-        const networkResult = await program.methods
+        console.log('tier.amount', tier.amount);
+        await program.methods
           .contribute(
             new BN(tier.id),
             new BN(tier.amount),
           )
           .accounts({
             contributor: new PublicKey(wallet[0].public_key),
-            escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
             project: projectPDA,
+            appAddress: new PublicKey(process.env.APP_PUBLIC_KEY)
           })
           .signers([keyPair])
           .rpc();
+
+
+        // Check funding progress and update the project status
+        // currentFunds >= softGoal -> status = successful
+        // currentFunds >= hardGoal -> status = soldOut
       } else {
         throw new Error('Could not find associated wallet');
       }

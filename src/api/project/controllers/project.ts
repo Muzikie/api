@@ -17,6 +17,7 @@ import { decryptPrivateKey } from '../../../utils/crypto';
 import { getProgramDetails, getProjectPDA } from '../../../utils/network';
 import { EncryptedSecretKeyMeta } from '../../../utils/types';
 
+
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(
     (item) => item.users_permissions_user.id === userId,
@@ -204,6 +205,7 @@ export default factories.createCoreController(
       async update(ctx) {
         const { id } = ctx.params;
         const user = ctx.state.user;
+        let originalStatus = 'draft';
 
         try {
           // Fetch the project
@@ -219,6 +221,7 @@ export default factories.createCoreController(
               },
             },
           );
+          originalStatus = project.status;
 
           // Ensure ownership
           if (!project || project.users_permissions_user.id !== user.id) {
@@ -230,6 +233,7 @@ export default factories.createCoreController(
           const currentPhotoCount = project.images ? project.images.length : 0;
 
           let entity;
+          // Multipart
           if (ctx.is('multipart')) {
             const { data, files } = parseMultipartData(ctx);
 
@@ -293,6 +297,8 @@ export default factories.createCoreController(
             } catch (error) {
               return ctx.badRequest(error.message);
             }
+
+          // JSON Content
           } else {
             entity = await strapi.entityService.update(
               'api::project.project',
@@ -300,7 +306,9 @@ export default factories.createCoreController(
               ctx.request.body,
             );
 
-            if (ctx.request.body.data.status === 'live') {
+            console.log('ctx.request.body.data', ctx.request.body.data);
+
+            if (ctx.request.body.data.status === 'published') {
               const wallet = await strapi.entityService.findMany(
                 'api::wallet.wallet',
                 {
@@ -310,6 +318,8 @@ export default factories.createCoreController(
                 },
               );
 
+              console.log('wallet1', wallet);
+
               if (wallet.length === 1) {
                 const { iv, encryptedData } = wallet[0]
                   .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
@@ -318,13 +328,46 @@ export default factories.createCoreController(
                 const program = getProgramDetails(keyPair);
                 const projectPDA = getProjectPDA(id, program);
 
-                const networkResult = await program.methods
+                await program.methods
                   .setPublish()
                   .accounts({
                     owner: new PublicKey(wallet[0].public_key),
                     project: projectPDA,
                   })
                   .signers([keyPair])
+                  .rpc();
+              }
+            } else if (ctx.request.body.data.status === 'withdrawn') {
+              const wallet = await strapi.entityService.findMany(
+                'api::wallet.wallet',
+                {
+                  filters: {
+                    users_permissions_user: user.id,
+                  },
+                },
+              );
+              console.log('wallet2', wallet);
+
+              if (wallet.length === 1) {
+                const { iv, encryptedData } = wallet[0]
+                  .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
+                const privateKey = decryptPrivateKey(encryptedData, iv);
+                const keyPair = Keypair.fromSecretKey(privateKey);
+                const appSecretKey = Uint8Array.from(Buffer.from(process.env.APP_PRIVATE_KEY, 'hex'));
+                console.log('appSecretKey', appSecretKey);
+                const AppKeyPair = Keypair.fromSecretKey(appSecretKey);
+                console.log('AppKeyPair', AppKeyPair);
+                const program = getProgramDetails(keyPair);
+                const projectPDA = getProjectPDA(id, program);
+
+                await program.methods
+                  .finalizeProject()
+                  .accounts({
+                    owner: new PublicKey(wallet[0].public_key),
+                    project: projectPDA,
+                    appAddress: new PublicKey(process.env.APP_PUBLIC_KEY),
+                  })
+                  .signers([AppKeyPair])
                   .rpc();
               }
             } else {
@@ -339,7 +382,8 @@ export default factories.createCoreController(
           await strapi.entityService.update(
             'api::project.project',
             id,
-            {data: {status: 'draft'}},
+            // @ts-expect-error
+            {data: {status: originalStatus}},
           );
           ctx.throw(500, err);
         }
@@ -397,16 +441,13 @@ export default factories.createCoreController(
                     new Date(result.data.attributes.deadline).getTime() / 1000,
                   ),
                   new PublicKey(wallet[0].public_key),
-                  new PublicKey(process.env.ESCROW_PUBLIC_KEY),
                 )
                 .accounts({
                   owner: new PublicKey(wallet[0].public_key),
-                  escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
                 })
                 .signers([keyPair])
                 .rpc();
 
-              console.log({ networkResult });
               console.log(
                 'Project campaign successfully created on the blockchain',
               );

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "contribution",
     "pluralName": "contributions",
-    "displayName": "contribution"
+    "displayName": "contribution",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -12,7 +13,7 @@
   "pluginOptions": {},
   "attributes": {
     "amount": {
-      "type": "float"
+      "type": "biginteger"
     },
     "contribution_tier": {
       "type": "relation",

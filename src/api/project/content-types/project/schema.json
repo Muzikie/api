@@ -36,10 +36,10 @@
       "type": "date"
     },
     "soft_goal": {
-      "type": "integer"
+      "type": "biginteger"
     },
     "current_funding": {
-      "type": "integer"
+      "type": "biginteger"
     },
     "deadline": {
       "type": "date"
@@ -74,9 +74,8 @@
       ]
     },
     "hard_goal": {
-      "type": "integer",
-      "required": true,
-      "min": 0
+      "type": "biginteger",
+      "required": true
     },
     "contribution_tiers": {
       "type": "relation",
@@ -116,10 +115,13 @@
     "status": {
       "type": "enumeration",
       "enum": [
-        "live",
+        "published",
         "draft",
         "successful",
-        "failed"
+        "soldOut",
+        "failed",
+        "failing",
+        "withdrawn"
       ],
       "default": "draft"
     }

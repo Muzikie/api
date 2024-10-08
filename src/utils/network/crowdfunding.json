@@ -64,7 +64,10 @@
           "signer": true
         },
         {
-          "name": "escrow",
+          "name": "app_address",
+          "docs": [
+            "CHECK"
+          ],
           "writable": true
         },
         {
@@ -101,17 +104,13 @@
           "writable": true
         },
         {
-          "name": "escrow",
-          "writable": true,
-          "signer": true
-        },
-        {
           "name": "owner",
           "writable": true
         },
         {
-          "name": "muzikie_address",
-          "writable": true
+          "name": "app_address",
+          "writable": true,
+          "signer": true
         },
         {
           "name": "system_program",
@@ -151,10 +150,6 @@
           "signer": true
         },
         {
-          "name": "escrow",
-          "writable": true
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -177,11 +172,7 @@
           "type": "i64"
         },
         {
-          "name": "wallet_address",
-          "type": "pubkey"
-        },
-        {
-          "name": "muzikie_address",
+          "name": "app_address",
           "type": "pubkey"
         }
       ]
@@ -204,13 +195,13 @@
           "writable": true
         },
         {
-          "name": "escrow",
-          "writable": true,
-          "signer": true
-        },
-        {
           "name": "contributor",
           "writable": true
+        },
+        {
+          "name": "app_address",
+          "writable": true,
+          "signer": true
         },
         {
           "name": "system_program",
@@ -307,28 +298,33 @@
     },
     {
       "code": 6008,
+      "name": "ProjectFailed",
+      "msg": "The project has failed."
+    },
+    {
+      "code": 6009,
       "name": "NoContributionTiers",
       "msg": "The project must have at least one contribution tier."
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "MaxContributionTiersReached",
       "msg": "The project already has the maximum number of contribution tiers."
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "TierNotFound",
       "msg": "The contribution tier was not found."
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "IncorrectAmount",
       "msg": "The contribution amount does not match the required tier amount."
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "InsufficientFunds",
-      "msg": "The escrow account does not have enough funds."
+      "msg": "The project account does not have enough funds."
     }
   ],
   "types": [
@@ -396,10 +392,6 @@
             }
           },
           {
-            "name": "escrow",
-            "type": "pubkey"
-          },
-          {
             "name": "bump",
             "type": "u8"
           }
@@ -425,9 +417,6 @@
           },
           {
             "name": "Failed"
-          },
-          {
-            "name": "Reimbursing"
           },
           {
             "name": "Failing"

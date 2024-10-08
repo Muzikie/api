@@ -70,7 +70,10 @@ export type Crowdfunding = {
           "signer": true
         },
         {
-          "name": "escrow",
+          "name": "appAddress",
+          "docs": [
+            "CHECK"
+          ],
           "writable": true
         },
         {
@@ -107,17 +110,13 @@ export type Crowdfunding = {
           "writable": true
         },
         {
-          "name": "escrow",
-          "writable": true,
-          "signer": true
-        },
-        {
           "name": "owner",
           "writable": true
         },
         {
-          "name": "muzikieAddress",
-          "writable": true
+          "name": "appAddress",
+          "writable": true,
+          "signer": true
         },
         {
           "name": "systemProgram",
@@ -157,10 +156,6 @@ export type Crowdfunding = {
           "signer": true
         },
         {
-          "name": "escrow",
-          "writable": true
-        },
-        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -183,11 +178,7 @@ export type Crowdfunding = {
           "type": "i64"
         },
         {
-          "name": "walletAddress",
-          "type": "pubkey"
-        },
-        {
-          "name": "muzikieAddress",
+          "name": "appAddress",
           "type": "pubkey"
         }
       ]
@@ -210,13 +201,13 @@ export type Crowdfunding = {
           "writable": true
         },
         {
-          "name": "escrow",
-          "writable": true,
-          "signer": true
-        },
-        {
           "name": "contributor",
           "writable": true
+        },
+        {
+          "name": "appAddress",
+          "writable": true,
+          "signer": true
         },
         {
           "name": "systemProgram",
@@ -313,28 +304,33 @@ export type Crowdfunding = {
     },
     {
       "code": 6008,
+      "name": "projectFailed",
+      "msg": "The project has failed."
+    },
+    {
+      "code": 6009,
       "name": "noContributionTiers",
       "msg": "The project must have at least one contribution tier."
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "maxContributionTiersReached",
       "msg": "The project already has the maximum number of contribution tiers."
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "tierNotFound",
       "msg": "The contribution tier was not found."
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "incorrectAmount",
       "msg": "The contribution amount does not match the required tier amount."
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "insufficientFunds",
-      "msg": "The escrow account does not have enough funds."
+      "msg": "The project account does not have enough funds."
     }
   ],
   "types": [
@@ -402,10 +398,6 @@ export type Crowdfunding = {
             }
           },
           {
-            "name": "escrow",
-            "type": "pubkey"
-          },
-          {
             "name": "bump",
             "type": "u8"
           }
@@ -431,9 +423,6 @@ export type Crowdfunding = {
           },
           {
             "name": "failed"
-          },
-          {
-            "name": "reimbursing"
           },
           {
             "name": "failing"
