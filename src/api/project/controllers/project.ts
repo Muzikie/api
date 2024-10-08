@@ -315,11 +315,9 @@ export default factories.createCoreController(
                   .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
                 const privateKey = decryptPrivateKey(encryptedData, iv);
                 const keyPair = Keypair.fromSecretKey(privateKey);
-
                 const program = getProgramDetails(keyPair);
                 const projectPDA = getProjectPDA(id, program);
 
-                // Transaction: Create a project campaign on Solana
                 const networkResult = await program.methods
                   .setPublish()
                   .accounts({
@@ -363,7 +361,7 @@ export default factories.createCoreController(
           }
 
           const now = new Date();
-          ctx.request.body.data.users_permissions_user = 41;
+          ctx.request.body.data.users_permissions_user = user.id;
           ctx.request.body.data.createdAt = now;
           ctx.request.body.data.updatedAt = now;
           ctx.request.body.data.publishedAt = now;
@@ -403,11 +401,7 @@ export default factories.createCoreController(
                 )
                 .accounts({
                   owner: new PublicKey(wallet[0].public_key),
-                  project: projectPDA,
                   escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
-                  systemProgram: new PublicKey(
-                    '11111111111111111111111111111111',
-                  ),
                 })
                 .signers([keyPair])
                 .rpc();

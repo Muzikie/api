@@ -1,6 +1,7 @@
 import { Wallet, Program, AnchorProvider, BN } from '@coral-xyz/anchor';
 import { Connection, PublicKey } from '@solana/web3.js';
 import idl from './crowdfunding.json';
+import {Crowdfunding} from './crowdfunding';
 
 
 
@@ -9,8 +10,7 @@ export const getProgramDetails = (keyPair)  => {
   const provider = new AnchorProvider(connection, new Wallet(keyPair), {
     preflightCommitment: 'confirmed',
   });
-  // @ts-expect-error
-  return new Program(idl, provider);
+  return new Program(idl as Crowdfunding, provider);
 };
 
 export const getProjectPDA = (id: string, program) => {
