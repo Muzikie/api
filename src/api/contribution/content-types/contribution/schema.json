@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "contributions",
+  "info": {
+    "singularName": "contribution",
+    "pluralName": "contributions",
+    "displayName": "contribution",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "amount": {
+      "type": "biginteger"
+    },
+    "contribution_tier": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::contribution-tier.contribution-tier",
+      "inversedBy": "contributions"
+    },
+    "project": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::project.project",
+      "inversedBy": "contributions"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "contributions"
+    }
+  }
+}

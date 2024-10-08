@@ -83,6 +83,24 @@
       "relation": "oneToMany",
       "target": "api::vote.vote",
       "mappedBy": "users_permissions_user"
+    },
+    "reactions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::reaction.reaction",
+      "mappedBy": "users_permissions_user"
+    },
+    "contributions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::contribution.contribution",
+      "mappedBy": "users_permissions_user"
+    },
+    "wallet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::wallet.wallet",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

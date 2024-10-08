@@ -10,14 +10,17 @@
     "strapi": "strapi",
     "deploy": "strapi deploy",
     "format": "prettier --write \"src/**/*.{js,ts,tsx,json,css,scss,md}\"",
-    "lint": "npx eslint ./src/api ./src/extensions ./config -c ./eslint.config.mjs"
+    "lint": "eslint"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.3",
     "@strapi/plugin-cloud": "4.25.1",
     "@strapi/plugin-i18n": "4.25.1",
     "@strapi/plugin-users-permissions": "^4.25.6",
     "@strapi/strapi": "4.25.1",
     "better-sqlite3": "8.6.0",
+    "crypto": "^1.0.1",
     "pg": "^8.12.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

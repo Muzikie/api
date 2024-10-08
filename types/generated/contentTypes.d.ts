@@ -739,6 +739,21 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::vote.vote'
     >;
+    reactions: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::reaction.reaction'
+    >;
+    contributions: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::contribution.contribution'
+    >;
+    wallet: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::wallet.wallet'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -850,6 +865,165 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
   };
 }
 
+export interface ApiContributionContribution extends Schema.CollectionType {
+  collectionName: 'contributions';
+  info: {
+    singularName: 'contribution';
+    pluralName: 'contributions';
+    displayName: 'contribution';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    amount: Attribute.BigInteger;
+    contribution_tier: Attribute.Relation<
+      'api::contribution.contribution',
+      'manyToOne',
+      'api::contribution-tier.contribution-tier'
+    >;
+    project: Attribute.Relation<
+      'api::contribution.contribution',
+      'manyToOne',
+      'api::project.project'
+    >;
+    users_permissions_user: Attribute.Relation<
+      'api::contribution.contribution',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::contribution.contribution',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::contribution.contribution',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiContributionTierContributionTier
+  extends Schema.CollectionType {
+  collectionName: 'contribution_tiers';
+  info: {
+    singularName: 'contribution-tier';
+    pluralName: 'contribution-tiers';
+    displayName: 'ContributionTier';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 3;
+      }>;
+    description: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        minLength: 10;
+        maxLength: 100;
+      }>;
+    rewards: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 140;
+      }>;
+    amount: Attribute.BigInteger & Attribute.Required;
+    image: Attribute.Media<'images'>;
+    project: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'manyToOne',
+      'api::project.project'
+    >;
+    contributions: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'oneToMany',
+      'api::contribution.contribution'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::contribution-tier.contribution-tier',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiExclusiveContentExclusiveContent
+  extends Schema.CollectionType {
+  collectionName: 'exclusive_contents';
+  info: {
+    singularName: 'exclusive-content';
+    pluralName: 'exclusive-contents';
+    displayName: 'ExclusiveContent';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        minLength: 5;
+      }>;
+    media: Attribute.Media<'images' | 'videos' | 'audios', true>;
+    project: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'manyToOne',
+      'api::project.project'
+    >;
+    accessible_tiers: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'oneToMany',
+      'api::contribution-tier.contribution-tier'
+    >;
+    public_access: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    description: Attribute.Text &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 140;
+      }>;
+    reaction_count: Attribute.Integer;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::exclusive-content.exclusive-content',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPlatformPlatform extends Schema.CollectionType {
   collectionName: 'platforms';
   info: {
@@ -905,11 +1079,6 @@ export interface ApiProfileProfile extends Schema.CollectionType {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    wallet: Attribute.Relation<
-      'api::profile.profile',
-      'oneToOne',
-      'api::wallet.wallet'
-    >;
     points: Attribute.Integer &
       Attribute.Required &
       Attribute.SetMinMax<
@@ -919,6 +1088,7 @@ export interface ApiProfileProfile extends Schema.CollectionType {
         number
       > &
       Attribute.DefaultTo<0>;
+    avatar: Attribute.Media<'images'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -930,6 +1100,155 @@ export interface ApiProfileProfile extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::profile.profile',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiProjectProject extends Schema.CollectionType {
+  collectionName: 'projects';
+  info: {
+    singularName: 'project';
+    pluralName: 'projects';
+    displayName: 'Project';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 3;
+      }>;
+    description: Attribute.Text &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 140;
+      }>;
+    project_type: Attribute.Enumeration<
+      ['single', 'ep', 'album', 'music_video']
+    > &
+      Attribute.Required;
+    planned_release_date: Attribute.Date;
+    soft_goal: Attribute.BigInteger;
+    current_funding: Attribute.BigInteger & Attribute.DefaultTo<'0'>;
+    deadline: Attribute.Date;
+    users_permissions_user: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    images: Attribute.Media<'images', true>;
+    video: Attribute.Media<'videos'>;
+    audio: Attribute.Media<'audios'>;
+    hard_goal: Attribute.BigInteger & Attribute.Required;
+    contribution_tiers: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::contribution-tier.contribution-tier'
+    >;
+    reactions: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::reaction.reaction'
+    >;
+    reaction_count: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Attribute.DefaultTo<0>;
+    exclusive_contents: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::exclusive-content.exclusive-content'
+    >;
+    summary: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        minLength: 70;
+        maxLength: 140;
+      }>;
+    contributions: Attribute.Relation<
+      'api::project.project',
+      'oneToMany',
+      'api::contribution.contribution'
+    >;
+    status: Attribute.Enumeration<
+      [
+        'published',
+        'draft',
+        'successful',
+        'soldOut',
+        'failed',
+        'failing',
+        'withdrawn',
+      ]
+    > &
+      Attribute.DefaultTo<'draft'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiReactionReaction extends Schema.CollectionType {
+  collectionName: 'reactions';
+  info: {
+    singularName: 'reaction';
+    pluralName: 'reactions';
+    displayName: 'Reaction';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    emoji: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 1;
+        maxLength: 10;
+      }>;
+    entity_type: Attribute.Enumeration<['project', 'content']>;
+    users_permissions_user: Attribute.Relation<
+      'api::reaction.reaction',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    project: Attribute.Relation<
+      'api::reaction.reaction',
+      'manyToOne',
+      'api::project.project'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::reaction.reaction',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::reaction.reaction',
       'oneToOne',
       'admin::user'
     > &
@@ -1094,15 +1413,15 @@ export interface ApiWalletWallet extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
+    public_key: Attribute.String & Attribute.Required & Attribute.Unique;
+    encrypted_private_key: Attribute.JSON & Attribute.Required;
     address: Attribute.String & Attribute.Required;
-    balance: Attribute.BigInteger &
-      Attribute.Required &
-      Attribute.DefaultTo<'0'>;
-    seed: Attribute.String & Attribute.Required;
-    profile: Attribute.Relation<
+    encryption_metadata: Attribute.JSON & Attribute.Required;
+    blockchain: Attribute.Enumeration<['Solana', 'Klayr']> & Attribute.Required;
+    users_permissions_user: Attribute.Relation<
       'api::wallet.wallet',
       'oneToOne',
-      'api::profile.profile'
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1141,8 +1460,13 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
       'api::badge.badge': ApiBadgeBadge;
+      'api::contribution.contribution': ApiContributionContribution;
+      'api::contribution-tier.contribution-tier': ApiContributionTierContributionTier;
+      'api::exclusive-content.exclusive-content': ApiExclusiveContentExclusiveContent;
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
+      'api::project.project': ApiProjectProject;
+      'api::reaction.reaction': ApiReactionReaction;
       'api::song.song': ApiSongSong;
       'api::song-badge.song-badge': ApiSongBadgeSongBadge;
       'api::vote.vote': ApiVoteVote;

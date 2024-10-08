@@ -12,23 +12,35 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "public_key": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "encrypted_private_key": {
+      "type": "json",
+      "required": true
+    },
     "address": {
       "type": "string",
       "required": true
     },
-    "balance": {
-      "type": "biginteger",
-      "default": "0",
+    "encryption_metadata": {
+      "type": "json",
       "required": true
     },
-    "seed": {
-      "type": "string",
+    "blockchain": {
+      "type": "enumeration",
+      "enum": [
+        "Solana",
+        "Klayr"
+      ],
       "required": true
     },
-    "profile": {
+    "users_permissions_user": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::profile.profile",
+      "target": "plugin::users-permissions.user",
       "inversedBy": "wallet"
     }
   }
