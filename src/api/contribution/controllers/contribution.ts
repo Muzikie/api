@@ -48,7 +48,7 @@ export default factories.createCoreController('api::contribution.contribution', 
       // Update the project's current_funding
       await strapi.entityService.update('api::project.project', project.id, {
         data: {
-          current_funding: project.current_funding + tier.amount
+          current_funding: (BigInt(project.current_funding) + BigInt(tier.amount)).toString()
         }
       });
 
@@ -71,7 +71,7 @@ export default factories.createCoreController('api::contribution.contribution', 
         const keyPair = Keypair.fromSecretKey(privateKey);
         const program = getProgramDetails(keyPair);
         const projectPDA = getProjectPDA(String(project.id), program);
-
+        console.log('tier.amount', tier.amount);
         await program.methods
           .contribute(
             new BN(tier.id),
@@ -80,6 +80,7 @@ export default factories.createCoreController('api::contribution.contribution', 
           .accounts({
             contributor: new PublicKey(wallet[0].public_key),
             project: projectPDA,
+            appAddress: new PublicKey(process.env.APP_PUBLIC_KEY)
           })
           .signers([keyPair])
           .rpc();

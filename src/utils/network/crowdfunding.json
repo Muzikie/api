@@ -64,6 +64,13 @@
           "signer": true
         },
         {
+          "name": "app_address",
+          "docs": [
+            "CHECK"
+          ],
+          "writable": true
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -189,6 +196,10 @@
         },
         {
           "name": "contributor",
+          "writable": true
+        },
+        {
+          "name": "app_address",
           "writable": true,
           "signer": true
         },

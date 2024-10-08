@@ -70,6 +70,13 @@ export type Crowdfunding = {
           "signer": true
         },
         {
+          "name": "appAddress",
+          "docs": [
+            "CHECK"
+          ],
+          "writable": true
+        },
+        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -195,6 +202,10 @@ export type Crowdfunding = {
         },
         {
           "name": "contributor",
+          "writable": true
+        },
+        {
+          "name": "appAddress",
           "writable": true,
           "signer": true
         },

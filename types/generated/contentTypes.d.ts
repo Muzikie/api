@@ -871,12 +871,13 @@ export interface ApiContributionContribution extends Schema.CollectionType {
     singularName: 'contribution';
     pluralName: 'contributions';
     displayName: 'contribution';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    amount: Attribute.Float;
+    amount: Attribute.BigInteger;
     contribution_tier: Attribute.Relation<
       'api::contribution.contribution',
       'manyToOne',
@@ -938,14 +939,7 @@ export interface ApiContributionTierContributionTier
       Attribute.SetMinMaxLength<{
         minLength: 140;
       }>;
-    amount: Attribute.Integer &
-      Attribute.Required &
-      Attribute.SetMinMax<
-        {
-          min: 0;
-        },
-        number
-      >;
+    amount: Attribute.BigInteger & Attribute.Required;
     image: Attribute.Media<'images'>;
     project: Attribute.Relation<
       'api::contribution-tier.contribution-tier',
@@ -1140,8 +1134,8 @@ export interface ApiProjectProject extends Schema.CollectionType {
     > &
       Attribute.Required;
     planned_release_date: Attribute.Date;
-    soft_goal: Attribute.Integer;
-    current_funding: Attribute.Integer;
+    soft_goal: Attribute.BigInteger;
+    current_funding: Attribute.BigInteger;
     deadline: Attribute.Date;
     users_permissions_user: Attribute.Relation<
       'api::project.project',
@@ -1151,14 +1145,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
     images: Attribute.Media<'images', true>;
     video: Attribute.Media<'videos'>;
     audio: Attribute.Media<'audios'>;
-    hard_goal: Attribute.Integer &
-      Attribute.Required &
-      Attribute.SetMinMax<
-        {
-          min: 0;
-        },
-        number
-      >;
+    hard_goal: Attribute.BigInteger & Attribute.Required;
     contribution_tiers: Attribute.Relation<
       'api::project.project',
       'oneToMany',

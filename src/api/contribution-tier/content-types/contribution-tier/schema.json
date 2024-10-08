@@ -28,9 +28,8 @@
       "required": true
     },
     "amount": {
-      "type": "integer",
-      "required": true,
-      "min": 0
+      "type": "biginteger",
+      "required": true
     },
     "image": {
       "type": "media",
