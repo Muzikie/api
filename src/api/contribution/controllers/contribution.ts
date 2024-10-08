@@ -5,12 +5,14 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { decryptPrivateKey } from '../../../utils/crypto';
 import { getProgramDetails, getProjectPDA } from '../../../utils/network';
 import { EncryptedSecretKeyMeta } from '../../../utils/types';
+import { ProjectStatus } from '../../../../types/collections';
 
 export default factories.createCoreController('api::contribution.contribution', ({ strapi }) => ({
   async create(ctx) {
     const { user } = ctx.state;
     const { contribution_tier } = ctx.request.body;
     let contributionId;
+    let project;
 
     try {
       // Find the contribution tier and associated project
@@ -23,7 +25,7 @@ export default factories.createCoreController('api::contribution.contribution', 
       }
 
       // Check if the project exists
-      const project = tier.project;
+      project = tier.project;
       if (!project) {
         return ctx.badRequest('Project not found');
       }
@@ -46,9 +48,17 @@ export default factories.createCoreController('api::contribution.contribution', 
       contributionId = contribution.id;
 
       // Update the project's current_funding
+      const current_funding = (BigInt(project.current_funding) + BigInt(tier.amount)).toString()
+      let status = project.status;
+      if (current_funding >= project.hard_goal) {
+        status = ProjectStatus.SoldOut;
+      } else if (current_funding >= project.soft_goal) {
+        status = ProjectStatus.Successful;
+      }
       await strapi.entityService.update('api::project.project', project.id, {
         data: {
-          current_funding: (BigInt(project.current_funding) + BigInt(tier.amount)).toString()
+          current_funding,
+          status,
         }
       });
 
@@ -71,7 +81,6 @@ export default factories.createCoreController('api::contribution.contribution', 
         const keyPair = Keypair.fromSecretKey(privateKey);
         const program = getProgramDetails(keyPair);
         const projectPDA = getProjectPDA(String(project.id), program);
-        console.log('tier.amount', tier.amount);
         await program.methods
           .contribute(
             new BN(tier.id),
@@ -87,8 +96,6 @@ export default factories.createCoreController('api::contribution.contribution', 
 
 
         // Check funding progress and update the project status
-        // currentFunds >= softGoal -> status = successful
-        // currentFunds >= hardGoal -> status = soldOut
       } else {
         throw new Error('Could not find associated wallet');
       }
@@ -99,6 +106,12 @@ export default factories.createCoreController('api::contribution.contribution', 
         'api::contribution.contribution',
         contributionId,
       );
+      await strapi.entityService.update('api::project.project', project.id, {
+        data: {
+          current_funding: project.current_funding,
+          status: project.status,
+        }
+      });
       ctx.throw(500, err);
     }
   },

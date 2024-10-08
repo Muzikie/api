@@ -1135,7 +1135,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
       Attribute.Required;
     planned_release_date: Attribute.Date;
     soft_goal: Attribute.BigInteger;
-    current_funding: Attribute.BigInteger;
+    current_funding: Attribute.BigInteger & Attribute.DefaultTo<'0'>;
     deadline: Attribute.Date;
     users_permissions_user: Attribute.Relation<
       'api::project.project',

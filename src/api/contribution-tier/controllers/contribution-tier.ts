@@ -45,7 +45,6 @@ export default factories.createCoreController('api::contribution-tier.contributi
         const projectPDA = getProjectPDA(ctx.request.body.data.project, program);
 
         const projectState = await program.account.projectState.fetch(projectPDA);
-        console.log({projectState})
 
         await program.methods.addContributionTier(
           new BN(result.data.id),

@@ -16,6 +16,7 @@ import { convertByteToBit } from '../../../utils/file';
 import { decryptPrivateKey } from '../../../utils/crypto';
 import { getProgramDetails, getProjectPDA } from '../../../utils/network';
 import { EncryptedSecretKeyMeta } from '../../../utils/types';
+import { ProjectStatus } from '../../../../types/collections';
 
 
 const extractProfile = (profiles, userId) => {
@@ -205,7 +206,7 @@ export default factories.createCoreController(
       async update(ctx) {
         const { id } = ctx.params;
         const user = ctx.state.user;
-        let originalStatus = 'draft';
+        let originalStatus = ProjectStatus.Draft;
 
         try {
           // Fetch the project
@@ -221,7 +222,7 @@ export default factories.createCoreController(
               },
             },
           );
-          originalStatus = project.status;
+          originalStatus = project.status as ProjectStatus;
 
           // Ensure ownership
           if (!project || project.users_permissions_user.id !== user.id) {
@@ -306,9 +307,7 @@ export default factories.createCoreController(
               ctx.request.body,
             );
 
-            console.log('ctx.request.body.data', ctx.request.body.data);
-
-            if (ctx.request.body.data.status === 'published') {
+            if (ctx.request.body.data.status === ProjectStatus.Published) {
               const wallet = await strapi.entityService.findMany(
                 'api::wallet.wallet',
                 {
@@ -317,8 +316,6 @@ export default factories.createCoreController(
                   },
                 },
               );
-
-              console.log('wallet1', wallet);
 
               if (wallet.length === 1) {
                 const { iv, encryptedData } = wallet[0]
@@ -337,7 +334,7 @@ export default factories.createCoreController(
                   .signers([keyPair])
                   .rpc();
               }
-            } else if (ctx.request.body.data.status === 'withdrawn') {
+            } else if (ctx.request.body.data.status === ProjectStatus.Withdrawn) {
               const wallet = await strapi.entityService.findMany(
                 'api::wallet.wallet',
                 {
@@ -346,7 +343,6 @@ export default factories.createCoreController(
                   },
                 },
               );
-              console.log('wallet2', wallet);
 
               if (wallet.length === 1) {
                 const { iv, encryptedData } = wallet[0]
@@ -354,9 +350,7 @@ export default factories.createCoreController(
                 const privateKey = decryptPrivateKey(encryptedData, iv);
                 const keyPair = Keypair.fromSecretKey(privateKey);
                 const appSecretKey = Uint8Array.from(Buffer.from(process.env.APP_PRIVATE_KEY, 'hex'));
-                console.log('appSecretKey', appSecretKey);
                 const AppKeyPair = Keypair.fromSecretKey(appSecretKey);
-                console.log('AppKeyPair', AppKeyPair);
                 const program = getProgramDetails(keyPair);
                 const projectPDA = getProjectPDA(id, program);
 
@@ -382,7 +376,6 @@ export default factories.createCoreController(
           await strapi.entityService.update(
             'api::project.project',
             id,
-            // @ts-expect-error
             {data: {status: originalStatus}},
           );
           ctx.throw(500, err);

@@ -39,7 +39,8 @@
       "type": "biginteger"
     },
     "current_funding": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "default": "0"
     },
     "deadline": {
       "type": "date"

@@ -27,8 +27,6 @@ export default factories.createCoreService('api::profile.profile', {
       const wallet = Keypair.generate();
       const iv = crypto.randomBytes(16);
       const privateKey = wallet.secretKey;
-      console.log('privateKey on generation', privateKey);
-      console.log('address on generation', wallet.publicKey);
       await strapi.entityService.create('api::wallet.wallet', {
         data: {
           public_key: wallet.publicKey.toString(),
