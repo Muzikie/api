@@ -72,18 +72,22 @@ export default factories.createCoreController('api::contribution.contribution', 
         const program = getProgramDetails(keyPair);
         const projectPDA = getProjectPDA(String(project.id), program);
 
-        const networkResult = await program.methods
+        await program.methods
           .contribute(
             new BN(tier.id),
             new BN(tier.amount),
           )
           .accounts({
             contributor: new PublicKey(wallet[0].public_key),
-            escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
             project: projectPDA,
           })
           .signers([keyPair])
           .rpc();
+
+
+        // Check funding progress and update the project status
+        // currentFunds >= softGoal -> status = successful
+        // currentFunds >= hardGoal -> status = soldOut
       } else {
         throw new Error('Could not find associated wallet');
       }

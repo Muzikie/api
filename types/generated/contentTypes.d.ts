@@ -1193,7 +1193,17 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'oneToMany',
       'api::contribution.contribution'
     >;
-    status: Attribute.Enumeration<['live', 'draft', 'successful', 'failed']> &
+    status: Attribute.Enumeration<
+      [
+        'published',
+        'draft',
+        'successful',
+        'soldOut',
+        'failed',
+        'failing',
+        'withdrawn',
+      ]
+    > &
       Attribute.DefaultTo<'draft'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
