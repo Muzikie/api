@@ -1,0 +1,439 @@
+{
+  "address": "3zkoTzTLyfPGhzCXWyfdt4Y3pfaNKCf8R8DBNunxDSvA",
+  "metadata": {
+    "name": "crowdfunding",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "add_contribution_tier",
+      "discriminator": [
+        73,
+        127,
+        230,
+        94,
+        219,
+        188,
+        84,
+        209
+      ],
+      "accounts": [
+        {
+          "name": "project",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "tier_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "contribute",
+      "discriminator": [
+        82,
+        33,
+        68,
+        131,
+        32,
+        0,
+        205,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "project",
+          "writable": true
+        },
+        {
+          "name": "contributor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "tier_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "finalize_project",
+      "discriminator": [
+        161,
+        232,
+        117,
+        5,
+        108,
+        131,
+        145,
+        232
+      ],
+      "accounts": [
+        {
+          "name": "project",
+          "writable": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "writable": true
+        },
+        {
+          "name": "muzikie_address",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_project",
+      "discriminator": [
+        40,
+        78,
+        156,
+        122,
+        54,
+        85,
+        204,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "project",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "project_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "project_id",
+          "type": "u64"
+        },
+        {
+          "name": "soft_cap",
+          "type": "u64"
+        },
+        {
+          "name": "hard_cap",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "i64"
+        },
+        {
+          "name": "wallet_address",
+          "type": "pubkey"
+        },
+        {
+          "name": "muzikie_address",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "project",
+          "writable": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "contributor",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_publish",
+      "discriminator": [
+        150,
+        37,
+        197,
+        176,
+        219,
+        63,
+        208,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "project",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "signer": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ProjectState",
+      "discriminator": [
+        41,
+        49,
+        200,
+        239,
+        125,
+        191,
+        219,
+        242
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ProjectNotInDraft",
+      "msg": "The project is not in Draft state."
+    },
+    {
+      "code": 6001,
+      "name": "ProjectNotPublished",
+      "msg": "The project is not Published."
+    },
+    {
+      "code": 6002,
+      "name": "DeadlinePassed",
+      "msg": "The project's deadline has passed."
+    },
+    {
+      "code": 6003,
+      "name": "DeadlineNotPassed",
+      "msg": "The project's deadline Not passed."
+    },
+    {
+      "code": 6004,
+      "name": "HardCapReached",
+      "msg": "The project has reached the hard cap."
+    },
+    {
+      "code": 6005,
+      "name": "SoftCapNotReached",
+      "msg": "The soft cap has not been reached."
+    },
+    {
+      "code": 6006,
+      "name": "DeadlineNotReached",
+      "msg": "The project's deadline has not been reached."
+    },
+    {
+      "code": 6007,
+      "name": "ProjectNotFailing",
+      "msg": "The project is not in Failing state."
+    },
+    {
+      "code": 6008,
+      "name": "NoContributionTiers",
+      "msg": "The project must have at least one contribution tier."
+    },
+    {
+      "code": 6009,
+      "name": "MaxContributionTiersReached",
+      "msg": "The project already has the maximum number of contribution tiers."
+    },
+    {
+      "code": 6010,
+      "name": "TierNotFound",
+      "msg": "The contribution tier was not found."
+    },
+    {
+      "code": 6011,
+      "name": "IncorrectAmount",
+      "msg": "The contribution amount does not match the required tier amount."
+    },
+    {
+      "code": 6012,
+      "name": "InsufficientFunds",
+      "msg": "The escrow account does not have enough funds."
+    }
+  ],
+  "types": [
+    {
+      "name": "ContributionTier",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tier_id",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProjectState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project_id",
+            "type": "u64"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "soft_cap",
+            "type": "u64"
+          },
+          {
+            "name": "hard_cap",
+            "type": "u64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "current_funding",
+            "type": "u64"
+          },
+          {
+            "name": "contribution_tiers",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "ContributionTier"
+                }
+              }
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "ProjectStatus"
+              }
+            }
+          },
+          {
+            "name": "escrow",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProjectStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Draft"
+          },
+          {
+            "name": "Published"
+          },
+          {
+            "name": "Successful"
+          },
+          {
+            "name": "SoldOut"
+          },
+          {
+            "name": "Failed"
+          },
+          {
+            "name": "Reimbursing"
+          },
+          {
+            "name": "Failing"
+          }
+        ]
+      }
+    }
+  ]
+}

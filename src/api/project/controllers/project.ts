@@ -4,15 +4,23 @@
 
 import { factories } from '@strapi/strapi';
 import { parseMultipartData } from '@strapi/utils';
+import { BN } from '@coral-xyz/anchor';
+import { Keypair, PublicKey } from '@solana/web3.js';
+
 import {
   TOTAL_PROJECT_IMAGES,
   MEX_PROJECT_IMAGE_SIZE,
   MEX_PROJECT_VIDEO_SIZE,
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
+import { decryptPrivateKey } from '../../../utils/crypto';
+import { getProgramDetails, getProjectPDA } from '../../../utils/network';
+import { EncryptedSecretKeyMeta } from '../../../utils/types';
 
 const extractProfile = (profiles, userId) => {
-  const profile = profiles.find(item => item.users_permissions_user.id === userId);
+  const profile = profiles.find(
+    (item) => item.users_permissions_user.id === userId,
+  );
   if (profile) {
     return {
       first_name: profile.first_name,
@@ -74,7 +82,7 @@ export default factories.createCoreController(
               },
               limit: pageSize,
               offset: (page - 1) * pageSize,
-            }
+            },
           );
 
           // Fetch exclusive content data
@@ -96,12 +104,15 @@ export default factories.createCoreController(
             },
           );
 
-
           const users = [
-            ...projects.map(item => item.users_permissions_user.id),
-            ...exclusiveContents.map(item => item.project.users_permissions_user.id),
+            ...projects.map((item) => item.users_permissions_user.id),
+            ...exclusiveContents.map(
+              (item) => item.project.users_permissions_user.id,
+            ),
           ];
-          const uniqueUsers = users.filter((id: string, index: number) => users.indexOf(id) === index);
+          const uniqueUsers = users.filter(
+            (id: string, index: number) => users.indexOf(id) === index,
+          );
 
           const profiles = await strapi.entityService.findMany(
             'api::profile.profile',
@@ -109,14 +120,14 @@ export default factories.createCoreController(
               filters: {
                 users_permissions_user: {
                   id: {
-                    $in: uniqueUsers
-                  }
-                }
+                    $in: uniqueUsers,
+                  },
+                },
               },
               populate: {
-                users_permissions_user: true
-              }
-            }
+                users_permissions_user: true,
+              },
+            },
           );
 
           // Map the data to the correct format
@@ -147,7 +158,10 @@ export default factories.createCoreController(
               name: content.project.name,
               id: content.project.id,
             },
-            owner: extractProfile(profiles, content.project.users_permissions_user.id),
+            owner: extractProfile(
+              profiles,
+              content.project.users_permissions_user.id,
+            ),
             reaction_count: content.reaction_count,
             accessible_tiers: content.accessible_tiers,
             createdAt: content.createdAt,
@@ -191,103 +205,144 @@ export default factories.createCoreController(
         const { id } = ctx.params;
         const user = ctx.state.user;
 
-        // Fetch the project
-        const project = await strapi.entityService.findOne(
-          'api::project.project',
-          id,
-          {
-            populate: {
-              images: true,
-              video: true,
-              audio: true,
-              users_permissions_user: true,
+        try {
+          // Fetch the project
+          const project = await strapi.entityService.findOne(
+            'api::project.project',
+            id,
+            {
+              populate: {
+                images: true,
+                video: true,
+                audio: true,
+                users_permissions_user: true,
+              },
             },
-          },
-        );
-
-        // Ensure ownership
-        if (!project || project.users_permissions_user.id !== user.id) {
-          return ctx.unauthorized(
-            'Only the owner is allowed to update a project',
           );
-        }
 
-        const currentPhotoCount = project.images ? project.images.length : 0;
+          // Ensure ownership
+          if (!project || project.users_permissions_user.id !== user.id) {
+            return ctx.unauthorized(
+              'Only the owner is allowed to update a project',
+            );
+          }
 
-        let entity;
-        if (ctx.is('multipart')) {
-          const { data, files } = parseMultipartData(ctx);
+          const currentPhotoCount = project.images ? project.images.length : 0;
 
-          try {
-            // Handle images
-            if (files.images) {
-              const newImagesCount = Array.isArray(files.images)
-                ? files.images.length
-                : 1;
-              const totalImages = currentPhotoCount + newImagesCount;
+          let entity;
+          if (ctx.is('multipart')) {
+            const { data, files } = parseMultipartData(ctx);
 
-              // Check if the total number of photos exceeds the limit
-              if (totalImages > TOTAL_PROJECT_IMAGES) {
-                return ctx.badRequest(
-                  `You can only have a maximum of ${TOTAL_PROJECT_IMAGES} images per project.`,
+            try {
+              // Handle images
+              if (files.images) {
+                const newImagesCount = Array.isArray(files.images)
+                  ? files.images.length
+                  : 1;
+                const totalImages = currentPhotoCount + newImagesCount;
+
+                // Check if the total number of photos exceeds the limit
+                if (totalImages > TOTAL_PROJECT_IMAGES) {
+                  return ctx.badRequest(
+                    `You can only have a maximum of ${TOTAL_PROJECT_IMAGES} images per project.`,
+                  );
+                }
+
+                const uploadedImageIds = await uploadFiles(
+                  files.images,
+                  id,
+                  'api::project.project',
+                  'images',
+                  MEX_PROJECT_IMAGE_SIZE,
+                  'image',
                 );
+                data.images = project.images.concat(uploadedImageIds);
               }
 
-              const uploadedImageIds = await uploadFiles(
-                files.images,
-                id,
-                'api::project.project',
-                'images',
-                MEX_PROJECT_IMAGE_SIZE,
-                'image',
-              );
-              data.images = project.images.concat(uploadedImageIds);
-            }
+              // Handle video
+              if (files.video) {
+                const uploadedVideoId = await uploadFiles(
+                  files.video,
+                  id,
+                  'api::project.project',
+                  'video',
+                  MEX_PROJECT_VIDEO_SIZE,
+                  'video',
+                );
+                data.video = uploadedVideoId[0]; // Since it's a single video
+              }
 
-            // Handle video
-            if (files.video) {
-              const uploadedVideoId = await uploadFiles(
-                files.video,
-                id,
-                'api::project.project',
-                'video',
-                MEX_PROJECT_VIDEO_SIZE,
-                'video',
-              );
-              data.video = uploadedVideoId[0]; // Since it's a single video
-            }
+              // Handle audio
+              if (files.audio) {
+                const uploadedAudioId = await uploadFiles(
+                  files.audio,
+                  id,
+                  'api::project.project',
+                  'audio',
+                  MEX_PROJECT_VIDEO_SIZE,
+                  'audio',
+                );
+                data.audio = uploadedAudioId[0]; // Since it's a single audio file
+              }
 
-            // Handle audio
-            if (files.audio) {
-              const uploadedAudioId = await uploadFiles(
-                files.audio,
-                id,
+              entity = await strapi.entityService.update(
                 'api::project.project',
-                'audio',
-                MEX_PROJECT_VIDEO_SIZE,
-                'audio',
+                id,
+                { data },
               );
-              data.audio = uploadedAudioId[0]; // Since it's a single audio file
+            } catch (error) {
+              return ctx.badRequest(error.message);
             }
-
+          } else {
             entity = await strapi.entityService.update(
               'api::project.project',
               id,
-              { data },
+              ctx.request.body,
             );
-          } catch (error) {
-            return ctx.badRequest(error.message);
+
+            if (ctx.request.body.data.status === 'live') {
+              const wallet = await strapi.entityService.findMany(
+                'api::wallet.wallet',
+                {
+                  filters: {
+                    users_permissions_user: user.id,
+                  },
+                },
+              );
+
+              if (wallet.length === 1) {
+                const { iv, encryptedData } = wallet[0]
+                  .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
+                const privateKey = decryptPrivateKey(encryptedData, iv);
+                const keyPair = Keypair.fromSecretKey(privateKey);
+                const program = getProgramDetails(keyPair);
+                const projectPDA = getProjectPDA(id, program);
+
+                const networkResult = await program.methods
+                  .setPublish()
+                  .accounts({
+                    owner: new PublicKey(wallet[0].public_key),
+                    project: projectPDA,
+                  })
+                  .signers([keyPair])
+                  .rpc();
+              }
+            } else {
+              // @todo ridi
+              throw new Error('Could not find associated wallet');
+            }
           }
-        } else {
-          entity = await strapi.entityService.update(
+
+          const sanitizedResults = await this.sanitizeOutput(entity, ctx);
+          return this.transformResponse(sanitizedResults);
+        } catch (err) {
+          await strapi.entityService.update(
             'api::project.project',
             id,
-            ctx.request.body,
+            {data: {status: 'draft'}},
           );
+          ctx.throw(500, err);
         }
-
-        const sanitizedResults = await this.sanitizeOutput(entity, ctx);
-        return this.transformResponse(sanitizedResults);
       },
 
       // POST
@@ -313,28 +368,61 @@ export default factories.createCoreController(
 
           // Proceed with creating the the project
           const result = await super.create(ctx);
+          // find user's sk to sign and send TX to solana program
+          const wallet = await strapi.entityService.findMany(
+            'api::wallet.wallet',
+            {
+              filters: {
+                users_permissions_user: user.id,
+              },
+            },
+          );
 
-         
-          // const wallet = await strapi.entityService.findMany(
-          //   'api::wallet.wallet',
-          //   {
-          //     users_permissions_user: user.id,
-          //   },
-          // );
+          if (wallet.length === 1) {
+            const { iv, encryptedData } = wallet[0].encrypted_private_key as unknown as EncryptedSecretKeyMeta;
+            const privateKey = decryptPrivateKey(encryptedData, iv);
+            const keyPair = Keypair.fromSecretKey(privateKey);
 
-          // if(wallet.length) {
-          //    // TODO: Call the Smart Contract method here to register the project on the blockchain
-          //   // and if not created, revert the centralized project creation.
+            try {
+              const program = getProgramDetails(keyPair);
+              const projectPDA = getProjectPDA(result.data.id, program);
 
+              // Transaction: Create a project campaign on Solana
+              const networkResult = await program.methods
+                .initProject(
+                  new BN(result.data.id),
+                  new BN(result.data.attributes.soft_goal),
+                  new BN(result.data.attributes.hard_goal),
+                  new BN(
+                    new Date(result.data.attributes.deadline).getTime() / 1000,
+                  ),
+                  new PublicKey(wallet[0].public_key),
+                  new PublicKey(process.env.ESCROW_PUBLIC_KEY),
+                )
+                .accounts({
+                  owner: new PublicKey(wallet[0].public_key),
+                  escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
+                })
+                .signers([keyPair])
+                .rpc();
 
-          //   // If the Smart contract interaction was unsuccessful, we have to delete the recently created
-          //   // Project using result.data.id
-          //   throw new Error(`Error transaction: ${result.data.id}`);
-          // } else {
-          //   throw new Error('Wallet not found');
-          // }
-
-
+              console.log({ networkResult });
+              console.log(
+                'Project campaign successfully created on the blockchain',
+              );
+            } catch (blockchainError) {
+              // If the smart contract interaction was unsuccessful, delete the recently created project in Strapi
+              await strapi.entityService.delete(
+                'api::project.project',
+                result.data.id,
+              );
+              throw new Error(
+                `Blockchain transaction failed. Error: ${blockchainError.message}`,
+              );
+            }
+          } else {
+            throw new Error('Wallet not found');
+          }
           return result;
         } catch (err) {
           // const id = err.message.split('Error transaction:')[1]

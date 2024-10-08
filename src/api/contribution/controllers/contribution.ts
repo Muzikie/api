@@ -1,9 +1,16 @@
 import { factories } from '@strapi/strapi';
+import { BN } from '@coral-xyz/anchor';
+import { Keypair, PublicKey } from '@solana/web3.js';
+
+import { decryptPrivateKey } from '../../../utils/crypto';
+import { getProgramDetails, getProjectPDA } from '../../../utils/network';
+import { EncryptedSecretKeyMeta } from '../../../utils/types';
 
 export default factories.createCoreController('api::contribution.contribution', ({ strapi }) => ({
   async create(ctx) {
     const { user } = ctx.state;
     const { contribution_tier } = ctx.request.body;
+    let contributionId;
 
     try {
       // Find the contribution tier and associated project
@@ -36,6 +43,8 @@ export default factories.createCoreController('api::contribution.contribution', 
         },
       });
 
+      contributionId = contribution.id;
+
       // Update the project's current_funding
       await strapi.entityService.update('api::project.project', project.id, {
         data: {
@@ -46,9 +55,45 @@ export default factories.createCoreController('api::contribution.contribution', 
       // Return the created contribution
       const sanitizedEntity = await this.sanitizeOutput(contribution, ctx);
 
+      const wallet = await strapi.entityService.findMany(
+        'api::wallet.wallet',
+        {
+          filters: {
+            users_permissions_user: user.id,
+          },
+        },
+      );
+
+      if (wallet.length === 1) {
+        const { iv, encryptedData } = wallet[0]
+          .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
+        const privateKey = decryptPrivateKey(encryptedData, iv);
+        const keyPair = Keypair.fromSecretKey(privateKey);
+        const program = getProgramDetails(keyPair);
+        const projectPDA = getProjectPDA(String(project.id), program);
+
+        const networkResult = await program.methods
+          .contribute(
+            new BN(tier.id),
+            new BN(tier.amount),
+          )
+          .accounts({
+            contributor: new PublicKey(wallet[0].public_key),
+            escrow: new PublicKey(process.env.ESCROW_PUBLIC_KEY),
+            project: projectPDA,
+          })
+          .signers([keyPair])
+          .rpc();
+      } else {
+        throw new Error('Could not find associated wallet');
+      }
       // before returning the value, make sure to update the Solana project too
       return this.transformResponse(sanitizedEntity);
     } catch (err) {
+      await strapi.entityService.delete(
+        'api::contribution.contribution',
+        contributionId,
+      );
       ctx.throw(500, err);
     }
   },

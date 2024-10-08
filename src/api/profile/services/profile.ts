@@ -1,19 +1,16 @@
-/**
- * profile service
- */
-
 import { factories } from '@strapi/strapi';
-import {Keypair} from '@solana/web3.js';
+import { Keypair } from '@solana/web3.js';
 import crypto from 'crypto';
 
-import {encryptPrivateKey} from '../../../utils/crypto';
-import {SupportedBlockchains} from '../../../utils/types';
+import { encryptPrivateKey, decryptPrivateKey } from '../../../utils/crypto';  // Import updated
+
+import { SupportedBlockchains } from '../../../utils/types';
 
 export default factories.createCoreService('api::profile.profile', {
   addProfileAndWallet: async (userId: string) => {
     try {
       const now = new Date().getTime();
-  
+
       // Create a profile for the new user
       await strapi.entityService.create('api::profile.profile', {
         data: {
@@ -25,11 +22,13 @@ export default factories.createCoreService('api::profile.profile', {
           publishedAt: now,
         },
       });
-  
+
       // Create a wallet for the new user
       const wallet = Keypair.generate();
       const iv = crypto.randomBytes(16);
-      const privateKey = wallet.secretKey.toString();
+      const privateKey = wallet.secretKey;
+      console.log('privateKey on generation', privateKey);
+      console.log('address on generation', wallet.publicKey);
       await strapi.entityService.create('api::wallet.wallet', {
         data: {
           public_key: wallet.publicKey.toString(),
@@ -42,7 +41,7 @@ export default factories.createCoreService('api::profile.profile', {
           publishedAt: now,
         },
       });
-  
+
       strapi.log.info(`Profile and wallet created for user ${userId}`);
     } catch (error) {
       strapi.log.error('Error during profile or wallet creation:', error);
