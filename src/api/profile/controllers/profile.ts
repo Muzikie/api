@@ -11,24 +11,24 @@ export default factories.createCoreController('api::profile.profile', ({ strapi 
       return ctx.unauthorized();
     }
 
-    const knex = strapi.db.connection;
-    const link = await knex('profiles_users_permissions_user_links')
-        .where('user_id', user.id)
-        .first();
-
-    if (!link) {
-      return ctx.notFound('Profile link not found');
-    }
-
     const profile = await strapi.db.query('api::profile.profile').findOne({
-      where: { id: link.profile_id },
+      where: { users_permissions_user: user.id },
       populate: ['avatar'],
+    });
+    const wallet = await strapi.db.query('api::wallet.wallet').findOne({
+      where: { users_permissions_user: user.id },
     });
 
     if (!profile) {
       return ctx.notFound('Profile not found');
     }
+    if (!wallet) {
+      return ctx.notFound('Wallet not found');
+    }
 
-    return profile;
+    return {
+      ...profile,
+      address: wallet.address,
+    };
   }
 }));
