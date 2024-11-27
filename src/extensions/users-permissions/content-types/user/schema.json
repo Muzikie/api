@@ -66,24 +66,6 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "song_badges": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::song-badge.song-badge",
-      "mappedBy": "users_permissions_user"
-    },
-    "songs": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::song.song",
-      "mappedBy": "users_permissions_user"
-    },
-    "votes": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::vote.vote",
-      "mappedBy": "users_permissions_user"
-    },
     "reactions": {
       "type": "relation",
       "relation": "oneToMany",

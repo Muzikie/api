@@ -4,4 +4,6 @@
 
 import { factories } from '@strapi/strapi';
 
-export default factories.createCoreService('api::contribution-tier.contribution-tier');
+export default factories.createCoreService(
+  'api::contribution-tier.contribution-tier',
+);

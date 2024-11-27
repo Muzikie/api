@@ -20,25 +20,11 @@
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": [
-        "images"
-      ]
-    },
-    "song_badges": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::song-badge.song-badge",
-      "mappedBy": "badge"
+      "allowedTypes": ["images"]
     },
     "schedule": {
       "type": "enumeration",
-      "enum": [
-        "minute",
-        "day",
-        "week",
-        "month",
-        "year"
-      ]
+      "enum": ["minute", "day", "week", "month", "year"]
     },
     "points": {
       "type": "integer",

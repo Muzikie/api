@@ -16,8 +16,13 @@ export default {
    */
   bootstrap({ strapi }) {
     strapi.db.lifecycles.subscribe((event) => {
-      if (event.action === 'afterCreate' && event.model.collectionName === 'up_users') {
-        strapi.service('api::profile.profile').addProfileAndWallet(event.result.id);
+      if (
+        event.action === 'afterCreate' &&
+        event.model.collectionName === 'up_users'
+      ) {
+        strapi
+          .service('api::profile.profile')
+          .addProfileAndWallet(event.result.id);
       }
     });
   },

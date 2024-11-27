@@ -31,10 +31,7 @@
     },
     "blockchain": {
       "type": "enumeration",
-      "enum": [
-        "Solana",
-        "Klayr"
-      ],
+      "enum": ["Solana", "Klayr"],
       "required": true
     },
     "users_permissions_user": {

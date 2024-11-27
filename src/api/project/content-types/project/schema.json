@@ -24,12 +24,7 @@
     },
     "project_type": {
       "type": "enumeration",
-      "enum": [
-        "single",
-        "ep",
-        "album",
-        "music_video"
-      ],
+      "enum": ["single", "ep", "album", "music_video"],
       "required": true
     },
     "planned_release_date": {
@@ -54,25 +49,19 @@
       "type": "media",
       "multiple": true,
       "required": false,
-      "allowedTypes": [
-        "images"
-      ]
+      "allowedTypes": ["images"]
     },
     "video": {
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": [
-        "videos"
-      ]
+      "allowedTypes": ["videos"]
     },
     "audio": {
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": [
-        "audios"
-      ]
+      "allowedTypes": ["audios"]
     },
     "hard_goal": {
       "type": "biginteger",
