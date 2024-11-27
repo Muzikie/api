@@ -20,11 +20,7 @@
       "type": "media",
       "multiple": true,
       "required": false,
-      "allowedTypes": [
-        "images",
-        "videos",
-        "audios"
-      ]
+      "allowedTypes": ["images", "videos", "audios"]
     },
     "project": {
       "type": "relation",

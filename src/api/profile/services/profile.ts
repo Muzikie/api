@@ -2,7 +2,7 @@ import { factories } from '@strapi/strapi';
 import { Keypair } from '@solana/web3.js';
 import crypto from 'crypto';
 
-import { encryptPrivateKey, decryptPrivateKey } from '../../../utils/crypto';  // Import updated
+import { encryptPrivateKey, decryptPrivateKey } from '../../../utils/crypto'; // Import updated
 
 import { SupportedBlockchains } from '../../../utils/types';
 

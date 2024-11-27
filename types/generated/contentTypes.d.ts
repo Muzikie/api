@@ -724,21 +724,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    song_badges: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToMany',
-      'api::song-badge.song-badge'
-    >;
-    songs: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToMany',
-      'api::song.song'
-    >;
-    votes: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToMany',
-      'api::vote.vote'
-    >;
     reactions: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
@@ -832,11 +817,6 @@ export interface ApiBadgeBadge extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     icon: Attribute.Media<'images'>;
-    song_badges: Attribute.Relation<
-      'api::badge.badge',
-      'oneToMany',
-      'api::song-badge.song-badge'
-    >;
     schedule: Attribute.Enumeration<['minute', 'day', 'week', 'month', 'year']>;
     points: Attribute.Integer &
       Attribute.Required &
@@ -1256,151 +1236,6 @@ export interface ApiReactionReaction extends Schema.CollectionType {
   };
 }
 
-export interface ApiSongSong extends Schema.CollectionType {
-  collectionName: 'songs';
-  info: {
-    singularName: 'song';
-    pluralName: 'songs';
-    displayName: 'Song';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    name: Attribute.String & Attribute.Required;
-    artists: Attribute.String &
-      Attribute.Required &
-      Attribute.SetMinMaxLength<{
-        minLength: 2;
-      }>;
-    cover_photo_url: Attribute.String & Attribute.Required;
-    release_year: Attribute.Integer &
-      Attribute.Required &
-      Attribute.SetMinMax<
-        {
-          min: 1900;
-          max: 2050;
-        },
-        number
-      >;
-    Spotify_url: Attribute.String;
-    apple_music_url: Attribute.String;
-    users_permissions_user: Attribute.Relation<
-      'api::song.song',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    song_badges: Attribute.Relation<
-      'api::song.song',
-      'oneToMany',
-      'api::song-badge.song-badge'
-    >;
-    album: Attribute.String &
-      Attribute.Required &
-      Attribute.SetMinMaxLength<{
-        minLength: 2;
-      }>;
-    votes: Attribute.Relation<'api::song.song', 'oneToMany', 'api::vote.vote'>;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<'api::song.song', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-  };
-}
-
-export interface ApiSongBadgeSongBadge extends Schema.CollectionType {
-  collectionName: 'song_badges';
-  info: {
-    singularName: 'song-badge';
-    pluralName: 'song-badges';
-    displayName: 'Song Badge';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    nft_id: Attribute.String & Attribute.Required;
-    claimed: Attribute.Boolean &
-      Attribute.Required &
-      Attribute.DefaultTo<false>;
-    reward: Attribute.BigInteger &
-      Attribute.Required &
-      Attribute.DefaultTo<'0'>;
-    song: Attribute.Relation<
-      'api::song-badge.song-badge',
-      'manyToOne',
-      'api::song.song'
-    >;
-    badge: Attribute.Relation<
-      'api::song-badge.song-badge',
-      'manyToOne',
-      'api::badge.badge'
-    >;
-    users_permissions_user: Attribute.Relation<
-      'api::song-badge.song-badge',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    rank: Attribute.Integer &
-      Attribute.Required &
-      Attribute.SetMinMax<
-        {
-          min: 1;
-          max: 3;
-        },
-        number
-      >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::song-badge.song-badge',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::song-badge.song-badge',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiVoteVote extends Schema.CollectionType {
-  collectionName: 'votes';
-  info: {
-    singularName: 'vote';
-    pluralName: 'votes';
-    displayName: 'Vote';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    song: Attribute.Relation<'api::vote.vote', 'manyToOne', 'api::song.song'>;
-    users_permissions_user: Attribute.Relation<
-      'api::vote.vote',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'api::vote.vote', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<'api::vote.vote', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-  };
-}
-
 export interface ApiWalletWallet extends Schema.CollectionType {
   collectionName: 'wallets';
   info: {
@@ -1467,9 +1302,6 @@ declare module '@strapi/types' {
       'api::profile.profile': ApiProfileProfile;
       'api::project.project': ApiProjectProject;
       'api::reaction.reaction': ApiReactionReaction;
-      'api::song.song': ApiSongSong;
-      'api::song-badge.song-badge': ApiSongBadgeSongBadge;
-      'api::vote.vote': ApiVoteVote;
       'api::wallet.wallet': ApiWalletWallet;
     }
   }

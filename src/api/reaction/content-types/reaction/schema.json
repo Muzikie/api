@@ -19,10 +19,7 @@
     },
     "entity_type": {
       "type": "enumeration",
-      "enum": [
-        "project",
-        "content"
-      ]
+      "enum": ["project", "content"]
     },
     "users_permissions_user": {
       "type": "relation",

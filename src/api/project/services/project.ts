@@ -6,7 +6,6 @@ import { factories } from '@strapi/strapi';
 
 export default factories.createCoreService('api::project.project');
 
-
 // import { factories } from '@strapi/strapi';
 // import { Program, AnchorProvider, web3, utils, BN, setProvider } from "@coral-xyz/anchor"
 // import { PublicKey, TransactionInstruction } from '@solana/web3.js';
@@ -25,8 +24,6 @@ export default factories.createCoreService('api::project.project');
 // export default factories.createCoreService('api::project.project', ({ strapi }) => ({
 //   async createProject(projectIdInput: number, softCapInput: number, hardCapInput: number, deadlineInput: number) {
 //     try {
-
-
 
 //       // Setup provider and program
 //       const provider = AnchorProvider.env();

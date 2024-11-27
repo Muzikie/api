@@ -4,8 +4,6 @@
 
 import { factories } from '@strapi/strapi';
 import { parseMultipartData } from '@strapi/utils';
-import { BN } from '@coral-xyz/anchor';
-import { Keypair, PublicKey } from '@solana/web3.js';
 
 import {
   TOTAL_PROJECT_IMAGES,
@@ -13,11 +11,7 @@ import {
   MEX_PROJECT_VIDEO_SIZE,
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
-import { decryptPrivateKey } from '../../../utils/crypto';
-import { getProgramDetails, getProjectPDA } from '../../../utils/network';
-import { EncryptedSecretKeyMeta } from '../../../utils/types';
 import { ProjectStatus } from '../../../../types/collections';
-
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(
@@ -29,6 +23,7 @@ const extractProfile = (profiles, userId) => {
       last_name: profile.last_name,
       user_id: userId,
       profile_id: profile.id,
+      avatar: profile.avatar,
     };
   }
 };
@@ -107,11 +102,12 @@ export default factories.createCoreController(
           );
 
           const users = [
-            ...projects.map((item) => item.users_permissions_user.id),
+            ...projects.map((item) => item.users_permissions_user?.id),
             ...exclusiveContents.map(
-              (item) => item.project.users_permissions_user.id,
+              (item) => item.project?.users_permissions_user?.id,
             ),
           ];
+
           const uniqueUsers = users.filter(
             (id: string, index: number) => users.indexOf(id) === index,
           );
@@ -128,6 +124,7 @@ export default factories.createCoreController(
               },
               populate: {
                 users_permissions_user: true,
+                avatar: true,
               },
             },
           );
@@ -144,7 +141,7 @@ export default factories.createCoreController(
             soft_goal: project.soft_goal,
             deadline: project.deadline,
             hard_goal: project.hard_goal,
-            owner: extractProfile(profiles, project.users_permissions_user.id),
+            owner: extractProfile(profiles, project?.users_permissions_user?.id),
             images: project.images,
             reaction_count: project.reaction_count,
             createdAt: project.createdAt,
@@ -162,7 +159,7 @@ export default factories.createCoreController(
             },
             owner: extractProfile(
               profiles,
-              content.project.users_permissions_user.id,
+              content.project?.users_permissions_user?.id,
             ),
             reaction_count: content.reaction_count,
             accessible_tiers: content.accessible_tiers,
@@ -202,6 +199,7 @@ export default factories.createCoreController(
           ctx.throw(500, err);
         }
       },
+
       // PUT
       async update(ctx) {
         const { id } = ctx.params;
@@ -225,7 +223,7 @@ export default factories.createCoreController(
           originalStatus = project.status as ProjectStatus;
 
           // Ensure ownership
-          if (!project || project.users_permissions_user.id !== user.id) {
+          if (!project || project.users_permissions_user?.id !== user.id) {
             return ctx.unauthorized(
               'Only the owner is allowed to update a project',
             );
@@ -261,7 +259,7 @@ export default factories.createCoreController(
                   MEX_PROJECT_IMAGE_SIZE,
                   'image',
                 );
-                data.images = project.images.concat(uploadedImageIds);
+                data.images =( project.images || []).concat(uploadedImageIds);
               }
 
               // Handle video
@@ -299,7 +297,7 @@ export default factories.createCoreController(
               return ctx.badRequest(error.message);
             }
 
-          // JSON Content
+            // JSON Content
           } else {
             entity = await strapi.entityService.update(
               'api::project.project',
@@ -307,7 +305,7 @@ export default factories.createCoreController(
               ctx.request.body,
             );
 
-            if (ctx.request.body.data.status === ProjectStatus.Published) {
+            if (ctx.request.body.data.status === ProjectStatus.Published || ctx.request.body.data.status === ProjectStatus.Withdrawn) {
               const wallet = await strapi.entityService.findMany(
                 'api::wallet.wallet',
                 {
@@ -318,66 +316,26 @@ export default factories.createCoreController(
               );
 
               if (wallet.length === 1) {
-                const { iv, encryptedData } = wallet[0]
-                  .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
-                const privateKey = decryptPrivateKey(encryptedData, iv);
-                const keyPair = Keypair.fromSecretKey(privateKey);
-                const program = getProgramDetails(keyPair);
-                const projectPDA = getProjectPDA(id, program);
+                // @todo Inform the blockchain app
 
-                await program.methods
-                  .setPublish()
-                  .accounts({
-                    owner: new PublicKey(wallet[0].public_key),
-                    project: projectPDA,
-                  })
-                  .signers([keyPair])
-                  .rpc();
+                if (ctx.request.body.data.status === ProjectStatus.Published) {
+                  // @todo Sign and send
+                } else if (ctx.request.body.data.status === ProjectStatus.Withdrawn) {
+                  // @todo Sign and send
+                }
+              } else {
+                // @todo ridi
+                throw new Error('Could not find associated wallet');
               }
-            } else if (ctx.request.body.data.status === ProjectStatus.Withdrawn) {
-              const wallet = await strapi.entityService.findMany(
-                'api::wallet.wallet',
-                {
-                  filters: {
-                    users_permissions_user: user.id,
-                  },
-                },
-              );
-
-              if (wallet.length === 1) {
-                const { iv, encryptedData } = wallet[0]
-                  .encrypted_private_key as unknown as EncryptedSecretKeyMeta;
-                const privateKey = decryptPrivateKey(encryptedData, iv);
-                const keyPair = Keypair.fromSecretKey(privateKey);
-                const appSecretKey = Uint8Array.from(Buffer.from(process.env.APP_PRIVATE_KEY, 'hex'));
-                const AppKeyPair = Keypair.fromSecretKey(appSecretKey);
-                const program = getProgramDetails(keyPair);
-                const projectPDA = getProjectPDA(id, program);
-
-                await program.methods
-                  .finalizeProject()
-                  .accounts({
-                    owner: new PublicKey(wallet[0].public_key),
-                    project: projectPDA,
-                    appAddress: new PublicKey(process.env.APP_PUBLIC_KEY),
-                  })
-                  .signers([AppKeyPair])
-                  .rpc();
-              }
-            } else {
-              // @todo ridi
-              throw new Error('Could not find associated wallet');
             }
           }
 
           const sanitizedResults = await this.sanitizeOutput(entity, ctx);
           return this.transformResponse(sanitizedResults);
         } catch (err) {
-          await strapi.entityService.update(
-            'api::project.project',
-            id,
-            {data: {status: originalStatus}},
-          );
+          await strapi.entityService.update('api::project.project', id, {
+            data: { status: originalStatus },
+          });
           ctx.throw(500, err);
         }
       },
@@ -416,31 +374,8 @@ export default factories.createCoreController(
           );
 
           if (wallet.length === 1) {
-            const { iv, encryptedData } = wallet[0].encrypted_private_key as unknown as EncryptedSecretKeyMeta;
-            const privateKey = decryptPrivateKey(encryptedData, iv);
-            const keyPair = Keypair.fromSecretKey(privateKey);
-
             try {
-              const program = getProgramDetails(keyPair);
-              const projectPDA = getProjectPDA(result.data.id, program);
-
-              // Transaction: Create a project campaign on Solana
-              const networkResult = await program.methods
-                .initProject(
-                  new BN(result.data.id),
-                  new BN(result.data.attributes.soft_goal),
-                  new BN(result.data.attributes.hard_goal),
-                  new BN(
-                    new Date(result.data.attributes.deadline).getTime() / 1000,
-                  ),
-                  new PublicKey(wallet[0].public_key),
-                )
-                .accounts({
-                  owner: new PublicKey(wallet[0].public_key),
-                })
-                .signers([keyPair])
-                .rpc();
-
+              // @todo Inform the blockchain app
               console.log(
                 'Project campaign successfully created on the blockchain',
               );
