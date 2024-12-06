@@ -10,6 +10,7 @@ export default factories.createCoreController(
     // POST
     async create(ctx) {
       const { user } = ctx.state;
+      const { project, amount } = ctx.request.body;
       let entityId: string = '';
 
       try {
@@ -33,7 +34,17 @@ export default factories.createCoreController(
         );
 
         if (wallet.length === 1) {
-          // @todo Inform the blockchain app
+          const txResult = await strapi.service('api::contribution-tier.contribution-tier').registerOnChain({
+            account: wallet[0],
+            tierId: entityId,
+            campaignId: project.id,
+            amount,
+          });
+
+          // Check funding progress and update the project status
+          if (!txResult.success) {
+            throw new Error('Could not register contribution on network');
+          }
 
           return result;
         } else {

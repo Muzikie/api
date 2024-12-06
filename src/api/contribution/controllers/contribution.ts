@@ -81,9 +81,16 @@ export default factories.createCoreController(
         );
 
         if (wallet.length === 1) {
-          // @todo Inform the blockchain app
+          const txResult = await strapi.service('api::contribution.contribution').registerOnChain({
+            account: wallet[0],
+            tierId: tier.id,
+            campaignId: project.id,
+          });
 
           // Check funding progress and update the project status
+          if (!txResult.success) {
+            throw new Error('Could not register contribution on network');
+          }
         } else {
           throw new Error('Could not find associated wallet');
         }

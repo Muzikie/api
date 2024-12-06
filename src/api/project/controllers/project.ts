@@ -316,12 +316,21 @@ export default factories.createCoreController(
               );
 
               if (wallet.length === 1) {
-                // @todo Inform the blockchain app
-
+                let txResult;
                 if (ctx.request.body.data.status === ProjectStatus.Published) {
-                  // @todo Sign and send
+                  txResult = await strapi.service('api::project.project').publish({
+                    account: wallet[0],
+                    campaignId: id,
+                  });
+                  // Check funding progress and update the project status
                 } else if (ctx.request.body.data.status === ProjectStatus.Withdrawn) {
-                  // @todo Sign and send
+                  txResult = await strapi.service('api::project.project').payout({
+                    account: wallet[0],
+                    campaignId: id,
+                  });
+                }
+                if (!txResult.success) {
+                  throw new Error('Could not register contribution on network');
                 }
               } else {
                 // @todo ridi
@@ -343,6 +352,7 @@ export default factories.createCoreController(
       // POST
       async create(ctx) {
         const { user } = ctx.state;
+        let entityId;
 
         try {
           const { data } = ctx.is('multipart')
@@ -363,6 +373,7 @@ export default factories.createCoreController(
 
           // Proceed with creating the the project
           const result = await super.create(ctx);
+          entityId = result.data.id;
           // find user's sk to sign and send TX to solana program
           const wallet = await strapi.entityService.findMany(
             'api::wallet.wallet',
@@ -373,28 +384,28 @@ export default factories.createCoreController(
             },
           );
 
+
           if (wallet.length === 1) {
-            try {
-              // @todo Inform the blockchain app
-              console.log(
-                'Project campaign successfully created on the blockchain',
-              );
-            } catch (blockchainError) {
-              // If the smart contract interaction was unsuccessful, delete the recently created project in Strapi
-              await strapi.entityService.delete(
-                'api::project.project',
-                result.data.id,
-              );
-              throw new Error(
-                `Blockchain transaction failed. Error: ${blockchainError.message}`,
-              );
+            const txResult = await strapi.service('api::project.project').createCampaign({
+              account: wallet[0],
+              softGoal: data.soft_goal,
+              hardGoal: data.hard_goal,
+              deadline: data.deadline,
+              apiId: entityId,
+            });
+
+            // Check funding progress and update the project status
+            if (!txResult.transactionId) {
+              throw new Error('Could not register contribution on network');
             }
           } else {
             throw new Error('Wallet not found');
           }
+
           return result;
         } catch (err) {
-          // const id = err.message.split('Error transaction:')[1]
+          // If the smart contract interaction was unsuccessful, delete the recently created project in Strapi
+          await strapi.entityService.delete('api::project.project', entityId);
           ctx.throw(500, err);
         }
       },
