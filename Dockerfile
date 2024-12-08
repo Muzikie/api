@@ -1,20 +1,21 @@
-FROM node:18
+# Base image with a specific Node.js version
+FROM node:18.20.4-slim
 
-# Install Python and required build tools
+# Set the working directory
+WORKDIR /app
+
+# Install system dependencies required for native builds
 RUN apt-get update && apt-get install -y python3 python3-venv build-essential
 
-# Create the virtual environment
-WORKDIR /app
-RUN python3 -m venv .venv
-
-# Activate the virtual environment and install Python dependencies
-RUN /bin/bash -c "source .venv/bin/activate && pip install setuptools"
+# Create and activate the Python virtual environment
+RUN python3 -m venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy project files
 COPY . .
 
 # Install Node.js dependencies
-RUN /bin/bash -c "source .venv/bin/activate && yarn install"
+RUN yarn install
 
 # Add build arguments and environment variables
 ARG PVK_ENCRYPTION_SALT
