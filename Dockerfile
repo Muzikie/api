@@ -1,0 +1,66 @@
+FROM node:18
+
+# Install Python and required build tools
+RUN apt-get update && apt-get install -y python3 python3-venv build-essential
+
+# Create the virtual environment
+WORKDIR /app
+RUN python3 -m venv .venv
+
+# Activate the virtual environment and install Python dependencies
+RUN /bin/bash -c "source .venv/bin/activate && pip install setuptools"
+
+# Copy project files
+COPY . .
+
+# Install Node.js dependencies
+RUN /bin/bash -c "source .venv/bin/activate && yarn install"
+
+# Add build arguments and environment variables
+ARG PVK_ENCRYPTION_SALT
+ARG NODE_ENV
+ARG NIXPACKS_NODE_VERSION
+ARG ADMIN_JWT_SECRET
+ARG API_TOKEN_SALT
+ARG APP_KEYS
+ARG APP_PRIVATE_KEY
+ARG APP_PUBLIC_KEY
+ARG HOST
+ARG PORT
+ARG TRANSFER_TOKEN_SALT
+ARG PGDATABASE
+ARG PGHOST
+ARG PGPASSWORD
+ARG PGPORT
+ARG PGUSER
+ARG URL
+ARG WS_API_ENDPOINT
+ARG CHAIN_ID
+
+ENV PVK_ENCRYPTION_SALT=$PVK_ENCRYPTION_SALT
+ENV NODE_ENV=$NODE_ENV
+ENV NIXPACKS_NODE_VERSION=$NIXPACKS_NODE_VERSION
+ENV ADMIN_JWT_SECRET=$ADMIN_JWT_SECRET
+ENV API_TOKEN_SALT=$API_TOKEN_SALT
+ENV APP_KEYS=$APP_KEYS
+ENV APP_PRIVATE_KEY=$APP_PRIVATE_KEY
+ENV APP_PUBLIC_KEY=$APP_PUBLIC_KEY
+ENV HOST=$HOST
+ENV PORT=$PORT
+ENV TRANSFER_TOKEN_SALT=$TRANSFER_TOKEN_SALT
+ENV PGDATABASE=$PGDATABASE
+ENV PGHOST=$PGHOST
+ENV PGPASSWORD=$PGPASSWORD
+ENV PGPORT=$PGPORT
+ENV PGUSER=$PGUSER
+ENV URL=$URL
+ENV WS_API_ENDPOINT=$WS_API_ENDPOINT
+ENV CHAIN_ID=$CHAIN_ID
+
+# Build the application
+RUN yarn build
+
+EXPOSE 1337
+
+# Run the application
+ENTRYPOINT ["strapi", "start"]
