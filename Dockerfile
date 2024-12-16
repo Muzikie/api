@@ -1,14 +1,14 @@
-# Base image with a specific Node.js version
-FROM node:18.20.4-slim
+FROM node:18 as build
 
-# Set the working directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy project files
+COPY package.json .
+RUN npm install
 COPY . .
 
-# Install Node.js dependencies
-RUN yarn install
+FROM node:18-slim
+RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
+WORKDIR /usr/src/app
 
 # Add build arguments and environment variables
 ARG PVK_ENCRYPTION_SALT
@@ -51,8 +51,13 @@ ENV URL=$URL
 ENV WS_API_ENDPOINT=$WS_API_ENDPOINT
 ENV CHAIN_ID=$CHAIN_ID
 
+COPY --chown=node:node --from=build /usr/src/app/package.json .
+COPY --chown=node:node --from=build /usr/src/app/package-lock.json .
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+
+
 # Build the application
-RUN yarn build
+RUN npm run build
 
 EXPOSE 1337
 
