@@ -54,6 +54,7 @@ ENV CHAIN_ID=$CHAIN_ID
 COPY --chown=node:node --from=build /usr/src/app/package.json .
 COPY --chown=node:node --from=build /usr/src/app/package-lock.json .
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/public ./public
 
 
 # Build the application
@@ -62,4 +63,4 @@ RUN npm run build
 EXPOSE 1337
 
 # Run the application
-ENTRYPOINT ["strapi", "start"]
+ENTRYPOINT ["node_modules/.bin/strapi", "start"]
