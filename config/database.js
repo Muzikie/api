@@ -82,6 +82,9 @@ module.exports = ({ env }) => {
     },
   };
 
+  console.log('-> client', client);
+  console.log('-> config', connections[client]);
+
   return {
     connection: {
       client,
