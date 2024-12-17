@@ -27,10 +27,11 @@ ARG PGHOST
 ARG PGPASSWORD
 ARG PGPORT
 ARG PGUSER
+ARG DATABASE_CLIENT
 ARG URL
 ARG WS_API_ENDPOINT
 ARG CHAIN_ID
-ENV NODE_ENV=production
+ARG NODE_ENV
 
 COPY --chown=node:node --from=build /usr/src/app/package.json .
 COPY --chown=node:node --from=build /usr/src/app/package-lock.json .
@@ -38,9 +39,28 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/public ./public
 COPY --chown=node:node --from=build /usr/src/app/config ./config
 
-
 # Build the application
-RUN npm run build
+RUN PVK_ENCRYPTION_SALT=${PVK_ENCRYPTION_SALT} \
+  NODE_ENV=${NODE_ENV} \
+  NIXPACKS_NODE_VERSION=${NIXPACKS_NODE_VERSION} \
+  ADMIN_JWT_SECRET=${ADMIN_JWT_SECRET} \
+  API_TOKEN_SALT=${API_TOKEN_SALT} \
+  APP_KEYS=${APP_KEYS} \
+  APP_PRIVATE_KEY=${APP_PRIVATE_KEY} \
+  APP_PUBLIC_KEY=${APP_PUBLIC_KEY} \
+  HOST=${HOST} \
+  PORT=${PORT} \
+  TRANSFER_TOKEN_SALT=${TRANSFER_TOKEN_SALT} \
+  DATABASE_NAME=${PGDATABASE} \
+  DATABASE_HOST=${PGHOST} \
+  DATABASE_PASSWORD=${PGPASSWORD} \
+  DATABASE_PORT=${PGPORT} \
+  DATABASE_USERNAME=${PGUSER} \
+  DATABASE_CLIENT=${DATABASE_CLIENT} \
+  URL=${URL} \
+  WS_API_ENDPOINT=${WS_API_ENDPOINT} \
+  CHAIN_ID=${CHAIN_ID} \
+  npm run build
 
 EXPOSE 1337
 
