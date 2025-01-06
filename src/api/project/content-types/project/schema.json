@@ -112,6 +112,12 @@
       "relation": "oneToMany",
       "target": "api::contribution-tier.contribution-tier",
       "mappedBy": "project"
+    },
+    "exclusive_contents": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::exclusive-content.exclusive-content",
+      "mappedBy": "project"
     }
   }
 }

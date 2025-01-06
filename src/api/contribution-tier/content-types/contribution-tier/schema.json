@@ -48,6 +48,12 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::contribution.contribution"
+    },
+    "exclusive_content": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::exclusive-content.exclusive-content",
+      "inversedBy": "accessible_tiers"
     }
   }
 }

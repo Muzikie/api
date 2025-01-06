@@ -394,6 +394,10 @@ export interface ApiContributionTierContributionTier
         maxLength: 140;
         minLength: 10;
       }>;
+    exclusive_content: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::exclusive-content.exclusive-content'
+    >;
     image: Schema.Attribute.Media<'images' | 'files', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -454,6 +458,57 @@ export interface ApiContributionContribution
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+  };
+}
+
+export interface ApiExclusiveContentExclusiveContent
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'exclusive_contents';
+  info: {
+    description: '';
+    displayName: 'ExclusiveContent';
+    pluralName: 'exclusive-contents';
+    singularName: 'exclusive-content';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    accessible_tiers: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contribution-tier.contribution-tier'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        minLength: 140;
+      }>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::exclusive-content.exclusive-content'
+    > &
+      Schema.Attribute.Private;
+    media: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    project: Schema.Attribute.Relation<'manyToOne', 'api::project.project'>;
+    public_access: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    publishedAt: Schema.Attribute.DateTime;
+    reaction_count: Schema.Attribute.Integer;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        minLength: 3;
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -562,6 +617,10 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         minLength: 140;
       }>;
+    exclusive_contents: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::exclusive-content.exclusive-content'
+    >;
     hard_goal: Schema.Attribute.BigInteger;
     images: Schema.Attribute.Media<'images' | 'files', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -1207,6 +1266,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::contribution-tier.contribution-tier': ApiContributionTierContributionTier;
       'api::contribution.contribution': ApiContributionContribution;
+      'api::exclusive-content.exclusive-content': ApiExclusiveContentExclusiveContent;
       'api::platform.platform': ApiPlatformPlatform;
       'api::profile.profile': ApiProfileProfile;
       'api::project.project': ApiProjectProject;
