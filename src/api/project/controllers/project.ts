@@ -26,6 +26,84 @@ const extractProfile = (profiles, userId) => {
   }
 };
 
+const getUniqueUsers = (projects, exclusiveContents) => {
+  const users = [
+    ...projects.map((item) => item.users_permissions_user?.id),
+    ...exclusiveContents.map(
+      (item) => item.project?.users_permissions_user?.id,
+    ),
+  ];
+
+  return users.filter(
+    (id: string, index: number) => users.indexOf(id) === index,
+  );
+};
+
+const mergeEntities = (projects, exclusiveContents, profiles, start, limit, page) => {
+  const mappedProjects = projects.map((project) => ({
+    type: 'project',
+    id: project.id,
+    documentId: project.documentId,
+    name: project.name,
+    summary: project.summary,
+    description: project.description,
+    project_type: project.project_type,
+    planned_release_date: project.planned_release_date,
+    soft_goal: project.soft_goal,
+    deadline: project.deadline,
+    hard_goal: project.hard_goal,
+    owner: extractProfile(profiles, project?.users_permissions_user?.id),
+    images: project.images,
+    reaction_count: project.reaction_count,
+    createdAt: project.createdAt,
+  }));
+
+  const mappedExclusiveContents = exclusiveContents.map((content) => ({
+    type: 'exclusive_content',
+    id: content.id,
+    documentId: content.documentId,
+    title: content.title,
+    media: content.media,
+    description: content.description,
+    project: {
+      name: content.project.name,
+      id: content.project.id,
+    },
+    owner: extractProfile(
+      profiles,
+      content.project?.users_permissions_user?.id,
+    ),
+    reaction_count: content.reaction_count,
+    accessible_tiers: content.accessible_tiers,
+    createdAt: content.createdAt,
+  }));
+
+  // Merge and sort the data by date and reaction count
+  const mergedData = [
+    ...mappedProjects,
+    ...mappedExclusiveContents,
+  ].sort((a, b) => {
+    // Sort by date first
+    if (a.createdAt > b.createdAt) return -1;
+    if (a.createdAt < b.createdAt) return 1;
+    // Sort by reaction_count then
+    if (a.reaction_count > b.reaction_count) return -1;
+    if (a.reaction_count < b.reaction_count) return 1;
+    return 0;
+  });
+
+  // Paginate the merged data
+  const data = mergedData.slice(
+    start,
+    Number(page) * limit,
+  );
+
+  return {
+    data,
+    total: mergedData.length,
+  }
+};
+
 export default factories.createCoreController(
   'api::project.project',
   ({ strapi }) => {
@@ -83,8 +161,6 @@ export default factories.createCoreController(
             limit,
             start,
           });
-
-          // Fetch exclusive content data
           const exclusiveContents = await contentDocs.findMany({
             sort: [{ createdAt: 'desc' }, { reaction_count: 'desc' }],
             populate: {
@@ -99,23 +175,11 @@ export default factories.createCoreController(
             limit,
             start,
           });
-
-          const users = [
-            ...projects.map((item) => item.users_permissions_user?.id),
-            ...exclusiveContents.map(
-              (item) => item.project?.users_permissions_user?.id,
-            ),
-          ];
-
-          const uniqueUsers = users.filter(
-            (id: string, index: number) => users.indexOf(id) === index,
-          );
-
           const profiles = await profileDocs.findMany({
             filters: {
               users_permissions_user: {
                 id: {
-                  $in: uniqueUsers,
+                  $in: getUniqueUsers(projects, exclusiveContents),
                 },
               },
             },
@@ -125,72 +189,16 @@ export default factories.createCoreController(
             },
           });
 
-          // Map the data to the correct format
-          const mappedProjects = projects.map((project) => ({
-            type: 'project',
-            id: project.id,
-            documentId: project.documentId,
-            name: project.name,
-            summary: project.summary,
-            description: project.description,
-            project_type: project.project_type,
-            planned_release_date: project.planned_release_date,
-            soft_goal: project.soft_goal,
-            deadline: project.deadline,
-            hard_goal: project.hard_goal,
-            owner: extractProfile(profiles, project?.users_permissions_user?.id),
-            images: project.images,
-            reaction_count: project.reaction_count,
-            createdAt: project.createdAt,
-          }));
-
-          const mappedExclusiveContents = exclusiveContents.map((content) => ({
-            type: 'exclusive_content',
-            id: content.id,
-            documentId: content.documentId,
-            title: content.title,
-            media: content.media,
-            description: content.description,
-            project: {
-              name: content.project.name,
-              id: content.project.id,
-            },
-            owner: extractProfile(
-              profiles,
-              content.project?.users_permissions_user?.id,
-            ),
-            reaction_count: content.reaction_count,
-            accessible_tiers: content.accessible_tiers,
-            createdAt: content.createdAt,
-          }));
-
-          // Merge and sort the data by date and reaction count
-          const mergedData = [
-            ...mappedProjects,
-            ...mappedExclusiveContents,
-          ].sort((a, b) => {
-            // Sort by date first
-            if (a.createdAt > b.createdAt) return -1;
-            if (a.createdAt < b.createdAt) return 1;
-            // Sort by reaction_count then
-            if (a.reaction_count > b.reaction_count) return -1;
-            if (a.reaction_count < b.reaction_count) return 1;
-            return 0;
-          });
-
           // Paginate the merged data
-          const paginatedData = mergedData.slice(
-            start,
-            Number(page) * limit,
-          );
+          const { data, total } = mergeEntities(projects, exclusiveContents, profiles, start, limit, page)
 
           // Return the response
           return ctx.send({
-            data: paginatedData,
+            data,
             pagination: {
               page: Number(page),
               pageSize: limit,
-              total: mergedData.length,
+              total,
             },
           });
         } catch (err) {
