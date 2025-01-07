@@ -65,10 +65,7 @@ const mergeEntities = (projects, exclusiveContents, profiles, start, limit, page
     title: content.title,
     media: content.media,
     description: content.description,
-    project: {
-      name: content.project.name,
-      id: content.project.id,
-    },
+    project: content.project,
     owner: extractProfile(
       profiles,
       content.project?.users_permissions_user?.id,
@@ -241,9 +238,9 @@ export default factories.createCoreController(
 
             try {
               // Handle images
-              if (files.images) {
-                const newImagesCount = Array.isArray(files.images)
-                  ? files.images.length
+              if (files['files.images']) {
+                const newImagesCount = Array.isArray(files['files.images'])
+                  ? files['files.images'].length
                   : 1;
                 const totalImages = currentPhotoCount + newImagesCount;
 
@@ -255,8 +252,8 @@ export default factories.createCoreController(
                 }
 
                 const uploadedImageIds = await uploadFiles(
-                  files.images,
-                  documentId,
+                  files['files.images'],
+                  project.id,
                   'api::project.project',
                   'images',
                   MEX_PROJECT_IMAGE_SIZE,
@@ -266,9 +263,9 @@ export default factories.createCoreController(
               }
 
               // Handle video
-              if (files.video) {
+              if (files['files.video']) {
                 const uploadedVideoId = await uploadFiles(
-                  files.video,
+                  files['files.video'],
                   documentId,
                   'api::project.project',
                   'video',
@@ -279,9 +276,9 @@ export default factories.createCoreController(
               }
 
               // Handle audio
-              if (files.audio) {
+              if (files['files.audio']) {
                 const uploadedAudioId = await uploadFiles(
-                  files.audio,
+                  files['files.audio'],
                   documentId,
                   'api::project.project',
                   'audio',
@@ -295,6 +292,7 @@ export default factories.createCoreController(
                 documentId,
                 data,
               });
+              await projectDocs.publish({ documentId });
             } catch (error) {
               return ctx.badRequest(error.message);
             }
@@ -305,6 +303,7 @@ export default factories.createCoreController(
               documentId,
               ...ctx.request.body,
             });
+            await projectDocs.publish({ documentId });
 
             if (ctx.request.body.data.project_status === ProjectStatus.Published || ctx.request.body.data.project_status === ProjectStatus.Withdrawn) {
               const wallet = await walletDocs.findMany({
