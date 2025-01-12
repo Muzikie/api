@@ -1,3 +1,5 @@
+import { Command } from './config';
+
 export const createSchema = {
 	$id: 'campaign/create',
 	title: 'Create transaction asset for campaign module',
@@ -98,4 +100,13 @@ export const reimburseSchema = {
 			fieldNumber: 1,
 		},
 	},
+};
+
+export const schemas = {
+	[Command.Create]: createSchema,
+	[Command.AddTier]: addTierSchema,
+	[Command.Publish]: publishSchema,
+	[Command.Payout]: payoutSchema,
+	[Command.Contribute]: contributeSchema,
+	[Command.Reimburse]: reimburseSchema,
 };

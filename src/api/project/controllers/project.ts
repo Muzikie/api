@@ -1,8 +1,5 @@
-/**
- * project controller
- */
-
 import { factories } from '@strapi/strapi'
+import { address as klayrAddress } from '@klayr/cryptography';
 import {
   TOTAL_PROJECT_IMAGES,
   MEX_PROJECT_IMAGE_SIZE,
@@ -10,6 +7,9 @@ import {
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
 import { ProjectStatus } from '../../../../types/collections';
+import { createTransaction, EncryptedAccount } from '../../../utils/network/register';
+import { Commands } from '../../../utils/network';
+import { getCampaignId } from '../../../utils/crypto';
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(
@@ -210,6 +210,7 @@ export default factories.createCoreController(
         let originalStatus = ProjectStatus.Draft;
 
         try {
+          const { files, body } = ctx.request
           // Fetch the project
           const project = await projectDocs.findOne({
             documentId,
@@ -234,8 +235,6 @@ export default factories.createCoreController(
           let entity;
           // Multipart
           if (ctx.is('multipart')) {
-            const { files, body: data } = ctx.request;
-
             try {
               // Handle images
               if (files['files.images']) {
@@ -259,7 +258,7 @@ export default factories.createCoreController(
                   MEX_PROJECT_IMAGE_SIZE,
                   'image',
                 );
-                data.images =( project.images || []).concat(uploadedImageIds);
+                body.data.images =( project.images || []).concat(uploadedImageIds);
               }
 
               // Handle video
@@ -272,7 +271,7 @@ export default factories.createCoreController(
                   MEX_PROJECT_VIDEO_SIZE,
                   'video',
                 );
-                data.video = uploadedVideoId[0]; // Since it's a single video
+                body.data.video = uploadedVideoId[0]; // Since it's a single video
               }
 
               // Handle audio
@@ -285,12 +284,12 @@ export default factories.createCoreController(
                   MEX_PROJECT_VIDEO_SIZE,
                   'audio',
                 );
-                data.audio = uploadedAudioId[0]; // Since it's a single audio file
+                body.data.audio = uploadedAudioId[0]; // Since it's a single audio file
               }
 
               entity = await projectDocs.update({
                 documentId,
-                data,
+                data: body.data,
               });
               await projectDocs.publish({ documentId });
             } catch (error) {
@@ -301,11 +300,11 @@ export default factories.createCoreController(
           } else {
             entity = await projectDocs.update({
               documentId,
-              ...ctx.request.body,
+              ...body,
             });
             await projectDocs.publish({ documentId });
 
-            if (ctx.request.body.data.project_status === ProjectStatus.Published || ctx.request.body.data.project_status === ProjectStatus.Withdrawn) {
+            if (body.data.project_status === ProjectStatus.Published || body.data.project_status === ProjectStatus.Withdrawn) {
               const wallet = await walletDocs.findMany({
                 filters: {
                   users_permissions_user: user.id,
@@ -313,15 +312,23 @@ export default factories.createCoreController(
               });
 
               if (wallet.length === 1) {
-                // @todo Inform the blockchain app
-
-                if (ctx.request.body.data.project_status === ProjectStatus.Published) {
-                  // @todo Sign and send
-                } else if (ctx.request.body.data.project_status === ProjectStatus.Withdrawn) {
-                  // @todo Sign and send
-                }
+                const campaignId = getCampaignId({
+                  apiId: entity.id as unknown as number,
+                  address: klayrAddress.getAddressFromKlayr32Address(wallet[0].address),
+                });
+                const params = { campaignId };
+                const command = body.data.project_status === ProjectStatus.Published
+                  ? Commands.Publish : Commands.Payout;
+                await createTransaction(
+                  command,
+                  params,
+                  {
+                    address: wallet[0].address,
+                    encrypted_private_key: wallet[0].encrypted_private_key,
+                    public_key: wallet[0].public_key,
+                  } as unknown as EncryptedAccount,
+                );
               } else {
-                // @todo ridi
                 throw new Error('Could not find associated wallet');
               }
             }
@@ -341,9 +348,10 @@ export default factories.createCoreController(
       // POST
       async create(ctx) {
         const { user } = ctx.state;
+        let documentId;
 
         try {
-          const { body: data } = ctx.request
+          const { body: { data } } = ctx.request
 
           if ('current_funding' in data || 'reaction_count' in data) {
             throw new Error(
@@ -351,36 +359,50 @@ export default factories.createCoreController(
             );
           }
 
-          // Proceed with creating the the project
-          const result = await super.create(ctx);
-          // find user's sk to sign and send TX to solana program
+          const projectData = {
+            data: {
+              ...data,
+              current_funding: '0',
+              reaction_count: 0,
+              users_permissions_user:  user.id,
+            },
+          };
+          const result = await projectDocs.create(projectData)
+          documentId = result.documentId;
+          await projectDocs.publish({ documentId: result.documentId })
           const wallet = await walletDocs.findMany({
             filters: {
               users_permissions_user: user.id,
             },
           });
 
-          if (wallet.length === 1) {
-            try {
-              // @todo Inform the blockchain app
-              console.log(
-                'Project campaign successfully created on the blockchain',
-              );
-            } catch (blockchainError) {
-              // If the smart contract interaction was unsuccessful, delete the recently created project in Strapi
-              await projectDocs.delete({
-                documentId: result.data.id,
-              });
-              throw new Error(
-                `Blockchain transaction failed. Error: ${blockchainError.message}`,
-              );
-            }
-          } else {
+          if (wallet.length !== 1) {
             throw new Error('Wallet not found');
+          }
+          const params = {
+            softGoal: data.soft_goal,
+            hardGoal: data.hard_goal,
+            deadline: data.deadline,
+            apiId: result.id,
+          };
+          const txResult = await createTransaction(
+            Commands.Create,
+            params,
+            {
+              address: wallet[0].address,
+              encrypted_private_key: wallet[0].encrypted_private_key,
+              public_key: wallet[0].public_key,
+            } as unknown as EncryptedAccount,
+          );
+
+          if (!txResult.transactionId) {
+            throw new Error(
+              `Blockchain transaction failed. Error: ${txResult}`,
+            );
           }
           return result;
         } catch (err) {
-          // const id = err.message.split('Error transaction:')[1]
+          await projectDocs.delete({ documentId });
           ctx.throw(500, err);
         }
       },

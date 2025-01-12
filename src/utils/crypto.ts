@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { getCampaignIdProps, getContributionIdProps } from './types';
 
 const algorithm = 'aes-256-cbc';
 const PVK_ENCRYPTION_SALT = process.env.PVK_ENCRYPTION_SALT;
@@ -29,3 +30,13 @@ export const decryptPrivateKey = (encryptedData: string, iv: string) => {
     decipher.final(),
   ]);
 };
+
+export const getCampaignId = ({ apiId, address }: getCampaignIdProps): string =>
+	Buffer.concat([Buffer.from(String(apiId), 'hex'), address]).toString('hex');
+
+export const getContributionId = ({
+	campaignId,
+	address,
+	tierId,
+}: getContributionIdProps): string =>
+	Buffer.concat([Buffer.from(`${campaignId}:${tierId}`, 'hex'), address]).toString('hex');

@@ -1,7 +1,8 @@
-import { endpoints, chainID } from './config';
-import WebSocket from 'ws';
 import { Transaction, codec } from 'klayr-sdk';
-import * as schemas from './schemas';
+import WebSocket from 'ws';
+
+import { endpoints, chainID } from './config';
+import { schemas } from './schemas';
 import { decryptPrivateKey } from '../crypto';
 
 const WS_API_ENDPOINT = process.env.WS_API_ENDPOINT;
@@ -31,13 +32,13 @@ interface PostTransactionResult {
   transactionId: string;
 }
 
-interface EncryptedAccount {
+export interface EncryptedAccount {
   address: string;
-  public_key: string;
   encrypted_private_key: {
     encryptedData: string;
     iv: string;
   };
+  public_key?: string;
 }
 
 export enum Commands {
@@ -78,7 +79,7 @@ export async function invokeEndpoint<T>(
       }
 
       if (response.error) {
-        reject(new Error(response.error.message));
+        reject(new Error('Broadcast error: ' + response.error.message));
       } else {
         resolve(response.result as T);
       }
