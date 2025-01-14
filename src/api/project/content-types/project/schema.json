@@ -15,10 +15,11 @@
     "name": {
       "type": "string",
       "required": true,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 200
     },
     "description": {
-      "type": "string",
+      "type": "text",
       "required": true,
       "minLength": 140
     },
@@ -81,7 +82,7 @@
       "type": "biginteger"
     },
     "summary": {
-      "type": "string",
+      "type": "text",
       "maxLength": 140,
       "minLength": 70
     },

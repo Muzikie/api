@@ -612,7 +612,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     current_funding: Schema.Attribute.BigInteger &
       Schema.Attribute.DefaultTo<'0'>;
     deadline: Schema.Attribute.Date;
-    description: Schema.Attribute.String &
+    description: Schema.Attribute.Text &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 140;
@@ -632,6 +632,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
+        maxLength: 200;
         minLength: 3;
       }>;
     planned_release_date: Schema.Attribute.Date;
@@ -653,7 +654,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     reaction_count: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     reactions: Schema.Attribute.Relation<'oneToMany', 'api::reaction.reaction'>;
     soft_goal: Schema.Attribute.BigInteger;
-    summary: Schema.Attribute.String &
+    summary: Schema.Attribute.Text &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 140;
         minLength: 70;
