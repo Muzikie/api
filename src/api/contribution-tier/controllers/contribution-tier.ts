@@ -33,7 +33,7 @@ export default factories.createCoreController(
             project: campaign.id,
           },
         });
-        await tierDocs.publish({ documentId: result.documentId })
+        // await tierDocs.publish({ documentId: result.documentId })
         documentId = result.documentId;
 
         const wallet = await walletDocs.findMany({

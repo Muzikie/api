@@ -56,10 +56,10 @@ export default factories.createCoreController(
               entity_type: EntityTypes.Project,
             },
           });
-          const publishResult = await reactionDoc.publish({
-            documentId: reaction.documentId,
-          });
-          reaction = publishResult.entries[0];
+          // const publishResult = await reactionDoc.publish({
+          //   documentId: reaction.documentId,
+          // });
+          // reaction = publishResult.entries[0];
           // Increment project reaction count
           const [projectData] = await projectDoc.findMany({
             filters: {

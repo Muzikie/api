@@ -46,7 +46,7 @@ export default factories.createCoreController(
             users_permissions_user: user.id,
           },
         });
-        await contributionDocs.publish({ documentId: contribution.documentId });
+        // await contributionDocs.publish({ documentId: contribution.documentId });
 
         contributionId = contribution.id;
 

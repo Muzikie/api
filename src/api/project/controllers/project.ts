@@ -291,7 +291,7 @@ export default factories.createCoreController(
                 documentId,
                 data: body.data,
               });
-              await projectDocs.publish({ documentId });
+              // await projectDocs.publish({ documentId });
             } catch (error) {
               return ctx.badRequest(error.message);
             }
@@ -302,7 +302,7 @@ export default factories.createCoreController(
               documentId,
               ...body,
             });
-            await projectDocs.publish({ documentId });
+            // await projectDocs.publish({ documentId });
 
             if (body.data.project_status === ProjectStatus.Published || body.data.project_status === ProjectStatus.Withdrawn) {
               const wallet = await walletDocs.findMany({
@@ -369,7 +369,7 @@ export default factories.createCoreController(
           };
           const result = await projectDocs.create(projectData)
           documentId = result.documentId;
-          await projectDocs.publish({ documentId: result.documentId })
+          // await projectDocs.publish({ documentId: result.documentId })
           const wallet = await walletDocs.findMany({
             filters: {
               users_permissions_user: user.id,

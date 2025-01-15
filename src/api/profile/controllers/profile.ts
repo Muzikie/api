@@ -110,7 +110,7 @@ export default factories.createCoreController(
             documentId,
             data,
           });
-          await profileDocs.publish({ documentId });
+          // await profileDocs.publish({ documentId });
 
           const sanitizedResults = await this.sanitizeOutput(entity, ctx);
           return this.transformResponse(sanitizedResults);

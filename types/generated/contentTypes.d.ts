@@ -373,12 +373,13 @@ export interface ApiContributionTierContributionTier
   extends Struct.CollectionTypeSchema {
   collectionName: 'contribution_tiers';
   info: {
+    description: '';
     displayName: 'ContributionTier';
     pluralName: 'contribution-tiers';
     singularName: 'contribution-tier';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     amount: Schema.Attribute.BigInteger & Schema.Attribute.Required;
@@ -433,7 +434,7 @@ export interface ApiContributionContribution
     singularName: 'contribution';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     amount: Schema.Attribute.BigInteger & Schema.Attribute.Required;
@@ -471,7 +472,7 @@ export interface ApiExclusiveContentExclusiveContent
     singularName: 'exclusive-content';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     accessible_tiers: Schema.Attribute.Relation<
@@ -515,12 +516,13 @@ export interface ApiExclusiveContentExclusiveContent
 export interface ApiPlatformPlatform extends Struct.CollectionTypeSchema {
   collectionName: 'platforms';
   info: {
+    description: '';
     displayName: 'Platform';
     pluralName: 'platforms';
     singularName: 'platform';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
@@ -549,12 +551,13 @@ export interface ApiPlatformPlatform extends Struct.CollectionTypeSchema {
 export interface ApiProfileProfile extends Struct.CollectionTypeSchema {
   collectionName: 'profiles';
   info: {
+    description: '';
     displayName: 'Profile';
     pluralName: 'profiles';
     singularName: 'profile';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     avatar: Schema.Attribute.Media<'images' | 'files'>;
@@ -598,7 +601,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     singularName: 'project';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     audio: Schema.Attribute.Media<'files' | 'audios', true>;
@@ -673,12 +676,13 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
 export interface ApiReactionReaction extends Struct.CollectionTypeSchema {
   collectionName: 'reactions';
   info: {
+    description: '';
     displayName: 'Reaction';
     pluralName: 'reactions';
     singularName: 'reaction';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
@@ -712,12 +716,13 @@ export interface ApiReactionReaction extends Struct.CollectionTypeSchema {
 export interface ApiWalletWallet extends Struct.CollectionTypeSchema {
   collectionName: 'wallets';
   info: {
+    description: '';
     displayName: 'Wallet';
     pluralName: 'wallets';
     singularName: 'wallet';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     address: Schema.Attribute.String & Schema.Attribute.Required;
