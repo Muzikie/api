@@ -451,6 +451,7 @@ export interface ApiContributionContribution
       'api::contribution.contribution'
     > &
       Schema.Attribute.Private;
+    on_chain_id: Schema.Attribute.String & Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -638,6 +639,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
         maxLength: 200;
         minLength: 3;
       }>;
+    on_chain_id: Schema.Attribute.String & Schema.Attribute.Unique;
     planned_release_date: Schema.Attribute.Date;
     project_status: Schema.Attribute.Enumeration<
       [

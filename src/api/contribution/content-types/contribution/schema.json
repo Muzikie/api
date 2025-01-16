@@ -26,6 +26,10 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "contribution"
+    },
+    "on_chain_id": {
+      "type": "string",
+      "unique": true
     }
   }
 }

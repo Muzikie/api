@@ -108,7 +108,7 @@ export async function createTransaction(command: Commands, params: Record<string
   const tx = new Transaction({
     module: 'campaign',
     command,
-    fee: BigInt(200000),
+    fee: command === Commands.Contribute ? BigInt(9000000) : BigInt(200000),
     params: codec.encodeJSON(schema, params),
     nonce: BigInt(authResult.nonce),
     senderPublicKey: Buffer.from(account.public_key, 'hex'),

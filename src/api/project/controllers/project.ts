@@ -312,14 +312,10 @@ export default factories.createCoreController(
               });
 
               if (wallet.length === 1) {
-                const campaignId = getCampaignId({
-                  apiId: entity.id as unknown as number,
-                  address: klayrAddress.getAddressFromKlayr32Address(wallet[0].address),
-                });
-                const params = { campaignId };
+                const params = { campaignId: entity.on_chain_id };
                 const command = body.data.project_status === ProjectStatus.Published
                   ? Commands.Publish : Commands.Payout;
-                await createTransaction(
+                const txResult = await createTransaction(
                   command,
                   params,
                   {
@@ -328,6 +324,12 @@ export default factories.createCoreController(
                     public_key: wallet[0].public_key,
                   } as unknown as EncryptedAccount,
                 );
+
+                if (!txResult.transactionId) {
+                  throw new Error(
+                    `Blockchain transaction failed. Error: ${txResult}`,
+                  );
+                }
               } else {
                 throw new Error('Could not find associated wallet');
               }
@@ -365,11 +367,11 @@ export default factories.createCoreController(
               current_funding: '0',
               reaction_count: 0,
               users_permissions_user:  user.id,
+              project_status: ProjectStatus.Draft,
             },
           };
           const result = await projectDocs.create(projectData)
           documentId = result.documentId;
-          // await projectDocs.publish({ documentId: result.documentId })
           const wallet = await walletDocs.findMany({
             filters: {
               users_permissions_user: user.id,
@@ -400,7 +402,18 @@ export default factories.createCoreController(
               `Blockchain transaction failed. Error: ${txResult}`,
             );
           }
-          return result;
+
+          const on_chain_id = getCampaignId({
+            apiId: result.id as unknown as number,
+            address:  klayrAddress.getAddressFromKlayr32Address(wallet[0].address),
+          });
+
+          const updatedResult = await projectDocs.update({
+            documentId: result.documentId,
+            data: { on_chain_id }
+          })
+
+          return updatedResult;
         } catch (err) {
           await projectDocs.delete({ documentId });
           ctx.throw(500, err);
