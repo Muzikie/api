@@ -16,16 +16,5 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap({ strapi }: { strapi: Core.Strapi }) {
-    strapi.db.lifecycles.subscribe((event) => {
-      if (
-        event.action === 'afterCreate' &&
-        event.model.singularName === 'user'
-      ) {
-        strapi
-          .service('api::profile.profile')
-          .addProfileAndWallet(event.result.id);
-      }
-    });
-  },
+  bootstrap({ strapi }: { strapi: Core.Strapi }) {},
 };

@@ -1,5 +1,4 @@
 import { factories } from '@strapi/strapi'
-import { address as klayrAddress } from '@klayr/cryptography';
 import {
   TOTAL_PROJECT_IMAGES,
   MEX_PROJECT_IMAGE_SIZE,
@@ -7,9 +6,6 @@ import {
 } from '../../../constants/limits';
 import { convertByteToBit } from '../../../utils/file';
 import { ProjectStatus } from '../../../../types/collections';
-import { createTransaction, EncryptedAccount } from '../../../utils/network/register';
-import { Commands } from '../../../utils/network';
-import { getCampaignId } from '../../../utils/crypto';
 
 const extractProfile = (profiles, userId) => {
   const profile = profiles.find(
@@ -105,9 +101,9 @@ export default factories.createCoreController(
   'api::project.project',
   ({ strapi }) => {
     const contentDocs = strapi.documents('api::exclusive-content.exclusive-content');
+    const tierDocs = strapi.documents('api::contribution-tier.contribution-tier');
     const profileDocs = strapi.documents('api::profile.profile');
     const projectDocs = strapi.documents('api::project.project');
-    const walletDocs = strapi.documents('api::wallet.wallet');
 
     // Helper function to upload files
     const uploadFiles = async (
@@ -211,7 +207,6 @@ export default factories.createCoreController(
 
         try {
           const { files, body } = ctx.request
-          // Fetch the project
           const project = await projectDocs.findOne({
             documentId,
             populate: {
@@ -221,6 +216,20 @@ export default factories.createCoreController(
               users_permissions_user: true,
             },
           });
+
+          const tiers = await tierDocs.findMany({
+            filters: {
+              project: {
+                id: {
+                  $eq: project.id
+                }
+              }
+            },
+          });
+          if (!tiers.length) {
+            ctx.throw(400, 'At least one contribution tier is required');
+          }
+
           originalStatus = project.project_status as ProjectStatus;
 
           // Ensure ownership
@@ -302,38 +311,6 @@ export default factories.createCoreController(
               documentId,
               ...body,
             });
-            // await projectDocs.publish({ documentId });
-
-            if (body.data.project_status === ProjectStatus.Published || body.data.project_status === ProjectStatus.Withdrawn) {
-              const wallet = await walletDocs.findMany({
-                filters: {
-                  users_permissions_user: user.id,
-                },
-              });
-
-              if (wallet.length === 1) {
-                const params = { campaignId: entity.on_chain_id };
-                const command = body.data.project_status === ProjectStatus.Published
-                  ? Commands.Publish : Commands.Payout;
-                const txResult = await createTransaction(
-                  command,
-                  params,
-                  {
-                    address: wallet[0].address,
-                    encrypted_private_key: wallet[0].encrypted_private_key,
-                    public_key: wallet[0].public_key,
-                  } as unknown as EncryptedAccount,
-                );
-
-                if (!txResult.transactionId) {
-                  throw new Error(
-                    `Blockchain transaction failed. Error: ${txResult}`,
-                  );
-                }
-              } else {
-                throw new Error('Could not find associated wallet');
-              }
-            }
           }
 
           const sanitizedResults = await this.sanitizeOutput(entity, ctx);
@@ -350,8 +327,6 @@ export default factories.createCoreController(
       // POST
       async create(ctx) {
         const { user } = ctx.state;
-        let documentId;
-
         try {
           const { body: { data } } = ctx.request
 
@@ -370,52 +345,8 @@ export default factories.createCoreController(
               project_status: ProjectStatus.Draft,
             },
           };
-          const result = await projectDocs.create(projectData)
-          documentId = result.documentId;
-          const wallet = await walletDocs.findMany({
-            filters: {
-              users_permissions_user: user.id,
-            },
-          });
-
-          if (wallet.length !== 1) {
-            throw new Error('Wallet not found');
-          }
-          const params = {
-            softGoal: data.soft_goal,
-            hardGoal: data.hard_goal,
-            deadline: data.deadline,
-            apiId: result.id,
-          };
-          const txResult = await createTransaction(
-            Commands.Create,
-            params,
-            {
-              address: wallet[0].address,
-              encrypted_private_key: wallet[0].encrypted_private_key,
-              public_key: wallet[0].public_key,
-            } as unknown as EncryptedAccount,
-          );
-
-          if (!txResult.transactionId) {
-            throw new Error(
-              `Blockchain transaction failed. Error: ${txResult}`,
-            );
-          }
-
-          const on_chain_id = getCampaignId({
-            apiId: result.id as unknown as number,
-            address:  klayrAddress.getAddressFromKlayr32Address(wallet[0].address),
-          });
-
-          const updatedResult = await projectDocs.update({
-            documentId: result.documentId,
-            data: { on_chain_id }
-          })
-
-          return updatedResult;
+          return projectDocs.create(projectData)
         } catch (err) {
-          await projectDocs.delete({ documentId });
           ctx.throw(500, err);
         }
       },
