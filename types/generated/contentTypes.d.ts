@@ -483,11 +483,6 @@ export interface ApiExclusiveContentExclusiveContent
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetMinMaxLength<{
-        minLength: 140;
-      }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -728,13 +723,13 @@ export interface ApiWalletWallet extends Struct.CollectionTypeSchema {
   };
   attributes: {
     address: Schema.Attribute.String & Schema.Attribute.Required;
-    blockchain: Schema.Attribute.Enumeration<['Solana', 'Klayr']> &
+    blockchain: Schema.Attribute.Enumeration<
+      ['Solana', 'Klayr', 'Lisk', 'Ethereum']
+    > &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    encrypted_private_key: Schema.Attribute.JSON & Schema.Attribute.Required;
-    encryption_metadata: Schema.Attribute.JSON & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -752,6 +747,7 @@ export interface ApiWalletWallet extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    wallet_type: Schema.Attribute.Enumeration<['Metamask']>;
   };
 }
 

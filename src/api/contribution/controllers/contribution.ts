@@ -3,12 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi'
-import { address as klayrAddress } from '@klayr/cryptography';
-
 import { ProjectStatus } from '../../../../types/collections';
-import { Commands } from '../../../utils/network';
-import { createTransaction, EncryptedAccount } from '../../../utils/network/register';
-import { getCampaignId, getContributionId } from '../../../utils/crypto';
 
 export default factories.createCoreController(
   'api::contribution.contribution',
@@ -17,7 +12,6 @@ export default factories.createCoreController(
       const tierDocs = strapi.documents('api::contribution-tier.contribution-tier');
       const contributionDocs = strapi.documents('api::contribution.contribution');
       const projectDocs = strapi.documents('api::project.project');
-      const walletDocs = strapi.documents('api::wallet.wallet');
 
       const { user } = ctx.state;
       const { contribution_tier } = ctx.request.body.data;
@@ -71,44 +65,6 @@ export default factories.createCoreController(
 
         // Return the created contribution
         const sanitizedEntity = await this.sanitizeOutput(contribution, ctx);
-
-        const wallet = await walletDocs.findMany({
-          filters: {
-            users_permissions_user: user.id,
-          },
-        });
-
-        if (wallet.length !== 1) {
-          throw new Error('Wallet not found');
-        }
-        const params = {
-          campaignId: project.on_chain_id,
-          tierId: tier.id,
-        };
-        const txResult = await createTransaction(
-          Commands.Contribute,
-          params,
-          {
-            address: wallet[0].address,
-            encrypted_private_key: wallet[0].encrypted_private_key,
-            public_key: wallet[0].public_key,
-          } as unknown as EncryptedAccount,
-        );
-
-        if (!txResult.transactionId) {
-          throw new Error(
-            `Blockchain transaction failed. Error: ${txResult}`,
-          );
-        }
-
-        // const on_chain_id = getContributionId({
-        //   campaignId: project.on_chain_id,
-        //   address,
-        //   tierId,
-        //   apiId: result.id as unknown as number,
-        //   address:  klayrAddress.getAddressFromKlayr32Address(wallet[0].address),
-        // });
-
         // before returning the value, make sure to update the Solana project too
         return this.transformResponse(sanitizedEntity);
       } catch (err) {

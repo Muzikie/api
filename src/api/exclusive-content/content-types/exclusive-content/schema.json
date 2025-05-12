@@ -32,11 +32,6 @@
       "default": false,
       "required": true
     },
-    "description": {
-      "type": "string",
-      "required": true,
-      "minLength": 140
-    },
     "reaction_count": {
       "type": "integer"
     },

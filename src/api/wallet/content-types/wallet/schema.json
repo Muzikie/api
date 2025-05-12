@@ -17,23 +17,17 @@
       "required": true,
       "unique": true
     },
-    "encrypted_private_key": {
-      "type": "json",
-      "required": true
-    },
     "address": {
       "type": "string",
-      "required": true
-    },
-    "encryption_metadata": {
-      "type": "json",
       "required": true
     },
     "blockchain": {
       "type": "enumeration",
       "enum": [
         "Solana",
-        "Klayr"
+        "Klayr",
+        "Lisk",
+        "Ethereum"
       ],
       "required": true
     },
@@ -42,6 +36,12 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "wallet"
+    },
+    "wallet_type": {
+      "type": "enumeration",
+      "enum": [
+        "Metamask"
+      ]
     }
   }
 }
