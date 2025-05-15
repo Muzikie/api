@@ -51,6 +51,7 @@ const mergeEntities = (projects, exclusiveContents, profiles, start, limit, page
     owner: extractProfile(profiles, project?.users_permissions_user?.id),
     images: project.images,
     reaction_count: project.reaction_count,
+    has_reaction: project.hasReaction,
     createdAt: project.createdAt,
   }));
 
@@ -141,6 +142,8 @@ export default factories.createCoreController(
       // GET
       async feed(ctx) {
         const { page = 1, pageSize = 20 } = ctx.query;
+        //get userID
+        const userId = ctx.state.user.id
         const limit = Number(pageSize)
         const start = (Number(page) - 1) * limit
 
@@ -150,10 +153,21 @@ export default factories.createCoreController(
             populate: {
               users_permissions_user: true,
               images: true,
+              reactions: {
+                populate: {
+                  users_permissions_user: true,
+              },    
+            },
             },
             limit,
             start,
           });
+          
+          const updatedProjects = projects.map((project) => ({
+            ...project,
+            hasReaction: project.reactions.some(({ users_permissions_user }) => users_permissions_user.id === userId),
+          }));
+          
           const exclusiveContents = await contentDocs.findMany({
             sort: [{ createdAt: 'desc' }, { reaction_count: 'desc' }],
             populate: {
@@ -183,7 +197,7 @@ export default factories.createCoreController(
           });
 
           // Paginate the merged data
-          const { data, total } = mergeEntities(projects, exclusiveContents, profiles, start, limit, page)
+          const { data, total } = mergeEntities(updatedProjects, exclusiveContents, profiles, start, limit, page)
 
           // Return the response
           return ctx.send({
