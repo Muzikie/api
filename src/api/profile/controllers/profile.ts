@@ -61,15 +61,12 @@ export default factories.createCoreController(
         if (!profile) {
           return ctx.notFound('Profile not found');
         }
-        if (!wallet) {
-          return ctx.notFound('Wallet not found');
-        }
-    
+
         return {
           ...profile,
           profileId: profile.documentId,
           id: user.id,
-          address: wallet.address,
+          address: wallet?.address,
         };
       },
 
