@@ -1,5 +1,3 @@
-import type { Core } from '@strapi/strapi';
-
 export default {
   /**
    * An asynchronous register function that runs before
@@ -7,7 +5,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  register(/*{ strapi }*/) {},
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -16,5 +14,16 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap({ strapi }: { strapi: Core.Strapi }) {},
+  bootstrap({ strapi }) {
+    strapi.db.lifecycles.subscribe((event) => {
+      if (
+        event.action === 'afterCreate' &&
+        event.model.uid === 'plugin::users-permissions.user'
+      ) {
+        strapi
+          .service('api::profile.profile')
+          .addProfile(event.result.id);
+      }
+    });
+  },
 };
