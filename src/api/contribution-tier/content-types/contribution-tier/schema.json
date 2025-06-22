@@ -17,11 +17,6 @@
       "required": true,
       "minLength": 3
     },
-    "description": {
-      "type": "string",
-      "minLength": 10,
-      "maxLength": 140
-    },
     "rewards": {
       "type": "string",
       "required": true,
@@ -30,15 +25,6 @@
     "amount": {
       "type": "biginteger",
       "required": true
-    },
-    "image": {
-      "type": "media",
-      "multiple": true,
-      "required": false,
-      "allowedTypes": [
-        "images",
-        "files"
-      ]
     },
     "project": {
       "type": "relation",
@@ -56,6 +42,9 @@
       "relation": "manyToOne",
       "target": "api::exclusive-content.exclusive-content",
       "inversedBy": "accessible_tiers"
+    },
+    "on_chain_id": {
+      "type": "string"
     }
   }
 }

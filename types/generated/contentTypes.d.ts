@@ -390,16 +390,10 @@ export interface ApiContributionTierContributionTier
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.String &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 140;
-        minLength: 10;
-      }>;
     exclusive_content: Schema.Attribute.Relation<
       'manyToOne',
       'api::exclusive-content.exclusive-content'
     >;
-    image: Schema.Attribute.Media<'images' | 'files', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -411,6 +405,7 @@ export interface ApiContributionTierContributionTier
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
+    on_chain_id: Schema.Attribute.String;
     project: Schema.Attribute.Relation<'manyToOne', 'api::project.project'>;
     publishedAt: Schema.Attribute.DateTime;
     rewards: Schema.Attribute.String &
