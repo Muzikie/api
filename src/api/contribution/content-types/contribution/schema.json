@@ -23,9 +23,9 @@
     },
     "users_permissions_user": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "contribution"
+      "inversedBy": "contributions"
     },
     "on_chain_id": {
       "type": "string",

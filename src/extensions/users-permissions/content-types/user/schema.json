@@ -89,9 +89,9 @@
       "target": "api::profile.profile",
       "mappedBy": "users_permissions_user"
     },
-    "contribution": {
+    "contributions": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "oneToMany",
       "target": "api::contribution.contribution",
       "mappedBy": "users_permissions_user"
     }

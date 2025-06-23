@@ -17,12 +17,14 @@ export default factories.createCoreController(
 
       try {
         const campaign = await projectDocs.findOne({ documentId: body.data.project });
+        console.log('-> ', body.data);
         return tierDocs.create({
           data: {
             name: body.data.name,
             description: body.data.description,
             rewards: body.data.rewards,
             amount: body.data.amount,
+            on_chain_id: body.data.on_chain_id,
             project: campaign.id,
           },
         });

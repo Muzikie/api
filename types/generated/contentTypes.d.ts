@@ -452,7 +452,7 @@ export interface ApiContributionContribution
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     users_permissions_user: Schema.Attribute.Relation<
-      'oneToOne',
+      'manyToOne',
       'plugin::users-permissions.user'
     >;
   };
@@ -1208,8 +1208,8 @@ export interface PluginUsersPermissionsUser
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    contribution: Schema.Attribute.Relation<
-      'oneToOne',
+    contributions: Schema.Attribute.Relation<
+      'oneToMany',
       'api::contribution.contribution'
     >;
     createdAt: Schema.Attribute.DateTime;
