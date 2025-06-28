@@ -408,7 +408,7 @@ export interface ApiContributionTierContributionTier
     on_chain_id: Schema.Attribute.String;
     project: Schema.Attribute.Relation<'manyToOne', 'api::project.project'>;
     publishedAt: Schema.Attribute.DateTime;
-    rewards: Schema.Attribute.String &
+    rewards: Schema.Attribute.Text &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 140;
