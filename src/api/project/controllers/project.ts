@@ -142,8 +142,7 @@ export default factories.createCoreController(
       // GET
       async feed(ctx) {
         const { page = 1, pageSize = 20 } = ctx.query;
-        //get userID
-        const userId = ctx.state.user.id
+        const userId = ctx.state.user?.id
         const limit = Number(pageSize)
         const start = (Number(page) - 1) * limit
 
@@ -165,7 +164,7 @@ export default factories.createCoreController(
           
           const updatedProjects = projects.map((project) => ({
             ...project,
-            hasReaction: project.reactions.some(({ users_permissions_user }) => users_permissions_user.id === userId),
+            hasReaction: userId ? project.reactions.some(({ users_permissions_user }) => users_permissions_user.id === userId) : false,
           }));
           
           const exclusiveContents = await contentDocs.findMany({
