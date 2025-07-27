@@ -39,6 +39,14 @@
         "images",
         "files"
       ]
+    },
+    "bio": {
+      "type": "text"
+    },
+    "socials": {
+      "type": "component",
+      "repeatable": true,
+      "component": "social.social"
     }
   }
 }

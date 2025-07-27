@@ -1,0 +1,52 @@
+export default {
+  routes: [
+    {
+      method: 'GET',
+      path: '/profiles',
+      handler: 'profile.find',
+      config: {
+        policies: [],
+      },
+    },
+    {
+      method: 'GET',
+      path: '/profiles/:id/activity',
+      handler: 'profile.activity',
+      config: {
+        policies: [],
+      },
+    },
+    {
+      method: 'GET',
+      path: '/profiles/:id',
+      handler: 'profile.findOne',
+      config: {
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/profiles',
+      handler: 'profile.create',
+      config: {
+        policies: [],
+      },
+    },
+    {
+      method: 'PUT',
+      path: '/profiles/:id',
+      handler: 'profile.update',
+      config: {
+        policies: [],
+      },
+    },
+    {
+      method: 'DELETE',
+      path: '/profiles/:id',
+      handler: 'profile.delete',
+      config: {
+        policies: [],
+      },
+    },
+  ],
+};

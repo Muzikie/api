@@ -52,7 +52,7 @@ export default factories.createCoreController(
     
         const [profile] = await profileDocs.findMany({
           filters: { users_permissions_user: user.id },
-          populate: ['avatar'],
+          populate: ['avatar', 'socials'],
         });
         const [wallet] = await walletDocs.findMany({
           filters: { users_permissions_user: user.id },
@@ -114,6 +114,124 @@ export default factories.createCoreController(
         } catch (err) {
           ctx.throw(500, err);
         }
+      },
+
+      async activity(ctx) {
+        const projectDocs = strapi.documents('api::project.project');
+        const contributionDocs = strapi.documents('api::contribution.contribution');
+        const reactionDocs = strapi.documents('api::reaction.reaction');
+        const userId = ctx.params.id;
+
+        // Get user's projects
+        const projects = await projectDocs.findMany({
+          filters: {
+            users_permissions_user: userId
+          },
+          populate: {
+            reactions: { populate: ['users_permissions_user'] },
+            contribution_tiers: {
+              populate: {
+                contributions: {
+                  populate: ['users_permissions_user']
+                }
+              }
+            }
+          }
+        });
+
+        // Get contributions made by user
+        const contributions = await contributionDocs.findMany({
+          filters: {
+            users_permissions_user: userId
+          },
+          populate: {
+            contribution_tier: {
+              populate: {
+                project: {
+                  populate: {
+                    users_permissions_user: true,
+                    reactions: { populate: ['users_permissions_user'] },
+                    contribution_tiers: {
+                      populate: {
+                        contributions: {
+                          populate: ['users_permissions_user']
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        // Get user's own reactions
+        const userReactions = await reactionDocs.findMany({
+          filters: {
+            users_permissions_user: userId
+          }
+        });
+
+        // Build reach from created projects
+        const reachedFromCreated = new Set();
+        for (const project of projects) {
+          // Reactions
+          for (const reaction of project.reactions || []) {
+            const uid = reaction.users_permissions_user?.id;
+            if (uid && uid !== userId) {
+              reachedFromCreated.add(uid);
+            }
+          }
+          // Contributions
+          for (const tier of project.contribution_tiers || []) {
+            for (const contrib of tier.contributions || []) {
+              const uid = contrib.users_permissions_user?.id;
+              if (uid && uid !== userId) {
+                reachedFromCreated.add(uid);
+              }
+            }
+          }
+        }
+
+        // Build reach from contributed projects
+        const reachedFromContributed = new Set();
+        for (const contrib of contributions) {
+          const project = contrib.contribution_tier?.project;
+          if (!project) continue;
+
+          // Project creator
+          const creatorId = project.users_permissions_user?.id;
+          if (creatorId && creatorId !== userId) {
+            reachedFromContributed.add(creatorId);
+          }
+
+          // Reactions
+          for (const reaction of project.reactions || []) {
+            const uid = reaction.users_permissions_user?.id;
+            if (uid && uid !== userId) {
+              reachedFromContributed.add(uid);
+            }
+          }
+
+          // Other contributors
+          for (const tier of project.contribution_tiers || []) {
+            for (const other of tier.contributions || []) {
+              const uid = other.users_permissions_user?.id;
+              if (uid && uid !== userId) {
+                reachedFromContributed.add(uid);
+              }
+            }
+          }
+        }
+
+        const totalReach = new Set([...reachedFromCreated, ...reachedFromContributed]);
+
+        ctx.body = {
+          userId,
+          likesCount: userReactions.length,
+          projectsCount: projects.length,
+          reachCount: totalReach.size
+        };
       }
     }
   }

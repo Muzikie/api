@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_social_socials",
+  "info": {
+    "displayName": "social"
+  },
+  "options": {},
+  "attributes": {
+    "platform": {
+      "type": "enumeration",
+      "enum": [
+        "instagram",
+        "twitter",
+        "tiktok"
+      ],
+      "required": true
+    },
+    "username": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
